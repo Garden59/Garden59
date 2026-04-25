@@ -105,7 +105,7 @@
         window.goToSetup = () => update(matchRef, { status: 'setup' });
         
         window.shareToWatch = async () => {
-            const watchLink = "TON_URL_SUR_VERCEL_OU_AUTRE/watch.html"; 
+            const watchLink = "https://score-trak.vercel.app/WATCHV5.html"; 
             if (navigator.share) {
                 try { await navigator.share({ title: 'ScoreTrak Watch', url: watchLink }); } catch (err) {}
             } else { navigator.clipboard.writeText(watchLink); alert("Lien copié !"); }
