@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>ScoreTrak TV - V5 Final</title>
+    <style>
+        body { background: #000; color: white; font-family: 'Arial Black', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
+        
+        /* ÉCRAN VEILLE */
+        #idle-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; z-index: 500; }
+        .ad-space { flex: 1.8; border-right: 2px solid #1a1a1a; display: flex; flex-direction: column; justify-content: center; align-items: center; background: radial-gradient(circle at center, #111 0%, #000 100%); }
+        .qr-space { flex: 1.2; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #050505; }
+        .qr-frame { background: white; padding: 20px; border-radius: 20px; }
+        .qr-frame img { width: 22vw; height: 22vw; display: block; }
+        .qr-text { margin-top: 30px; font-size: 1.8vw; color: #ccff00; text-align: center; text-transform: uppercase; }
+
+        /* ÉCRAN SETUP */
+        #setup-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 550; }
+        .logo-setup { font-size: 10vw; color: #ccff00; font-style: italic; animation: pulse 1.5s infinite; }
+
+        /* ÉCRAN SCORE */
+        .main-container { height: 100vh; display: flex; flex-direction: column; justify-content: center; visibility: hidden; }
+        .row { display: flex; align-items: center; justify-content: space-between; padding: 2vh 4vw; border-bottom: 2px solid #111; height: 45vh; }
+        .pts { font-size: 24vw; font-weight: 900; min-width: 25vw; text-align: center; }
+        .games { font-size: 11vw; color: #FFD700; background: #1a1a1a; padding: 10px 25px; border-radius: 15px; margin: 0 30px; }
+
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+    </style>
+</head>
+<body>
+
+    <div id="idle-screen">
+        <div class="ad-space">
+            <div style="font-size: 5vw; color: #ccff00; font-style: italic; border: 3px solid #222; padding: 50px; border-radius: 40px; text-align: center;">VOTRE PUB ICI</div>
+        </div>
+        <div class="qr-space">
+            <div class="qr-frame"><img id="qr-code-img" src="" alt="QR Code"></div>
+            <div class="qr-text">Scanner pour<br>gérer le match</div>
+        </div>
+    </div>
+
+    <div id="setup-screen">
+        <div class="logo-setup">ScoreTrak</div>
+        <div style="color: white; letter-spacing: 5px; margin-top: 20px;">CONFIGURATION EN COURS...</div>
+    </div>
+
+    <div id="main-ui" class="main-container">
+        <div class="row" style="color: #4CAF50;">
+            <div id="nA" style="font-size: 5vw; font-weight: bold; flex: 4;"></div>
+            <div style="display: flex; flex: 6; justify-content: flex-end; align-items: center;">
+                <div id="sA" class="pts">0</div><div id="gA" class="games">0</div><div id="stA" style="font-size: 8vw; color: #FF5722;">0</div>
+            </div>
+        </div>
+        <div class="row" style="color: #2196F3; border: none;">
+            <div id="nB" style="font-size: 5vw; font-weight: bold; flex: 4;"></div>
+            <div style="display: flex; flex: 6; justify-content: flex-end; align-items: center;">
+                <div id="sB" class="pts">0</div><div id="gB" class="games">0</div><div id="stB" style="font-size: 8vw; color: #FF5722;">0</div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = { apiKey: "AIzaSyCjlHL7GEXFvnrNzZAIEZyl-WCqUI3txiM", authDomain: "scoretrak-123.firebaseapp.com", databaseURL: "https://scoretrak-123-default-rtdb.europe-west1.firebasedatabase.app", projectId: "scoretrak-123" };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // NOUVEAU LIEN SMARTPHONE V5
+        const urlSmartphone = "https://hilarious-hummingbird-1e8113.netlify.app/smartphonev5";
+        document.getElementById('qr-code-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(urlSmartphone)}&color=000000`;
+
+        onValue(ref(db, 'match/terrain1'), (snap) => {
+            const d = snap.val();
+            const labels = ["0", "15", "30", "40", "AD"];
+            if (!d || d.status === 'idle') {
+                document.getElementById('idle-screen').style.display = 'flex';
+                document.getElementById('setup-screen').style.display = 'none';
+                document.getElementById('main-ui').style.visibility = 'hidden';
+                return;
+            }
+            if (d.status === 'setup') {
+                document.getElementById('idle-screen').style.display = 'none';
+                document.getElementById('setup-screen').style.display = 'flex';
+                document.getElementById('main-ui').style.visibility = 'hidden';
+                return;
+            }
+            document.getElementById('idle-screen').style.display = 'none';
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('main-ui').style.visibility = 'visible';
+            
+            document.getElementById('nA').innerText = d.pA1 + " / " + d.pA2;
+            document.getElementById('nB').innerText = d.pB1 + " / " + d.pB2;
+            document.getElementById('sA').innerText = labels[d.scoreA] || d.scoreA;
+            document.getElementById('sB').innerText = labels[d.scoreB] || d.scoreB;
+            document.getElementById('gA').innerText = d.gamesA; document.getElementById('gB').innerText = d.gamesB;
+            document.getElementById('stA').innerText = d.setsA; document.getElementById('stB').innerText = d.setsB;
+        });
+    </script>
+</body>
+</html>
