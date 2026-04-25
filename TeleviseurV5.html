@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ScoreTrak TV - Live V5 Design</title>
+    <title>ScoreTrak TV - Live V5 Design (Games Updated)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Roboto:wght@900&display=swap');
 
@@ -37,7 +37,7 @@
         .victoire-title { font-size: 10vw; color: #ccff00; text-shadow: 0 0 50px rgba(204, 255, 0, 0.5); animation: pulse 1s infinite; font-family: 'Orbitron'; }
         .victoire-names { font-size: 5vw; color: white; margin-top: 20px; }
 
-        /* Interface Scoreboard (Design V5) */
+        /* Interface Scoreboard */
         .scoreboard-wrapper { flex: 1; display: flex; flex-direction: column; width: 100%; visibility: hidden; }
         
         table { width: 100%; height: 100%; border-collapse: collapse; table-layout: fixed; }
@@ -47,8 +47,10 @@
             padding: 1.5vh; text-transform: uppercase; border-bottom: 2px solid #222; 
         }
 
-        .col-names { width: 45%; }
-        .col-set { width: 10%; }
+        /* Ajustement des largeurs de colonnes */
+        .col-names { width: 40%; }
+        .col-sets { width: 10%; }
+        .col-games { width: 15%; }
         .col-points { width: 25%; background-color: #050505; }
 
         td { text-align: center; border-bottom: 1px solid #111; }
@@ -64,7 +66,9 @@
             box-shadow: 0 0 25px #ccff00; display: none; 
         }
 
-        .score-set { font-family: 'Orbitron', sans-serif; font-size: 9vw; font-weight: 900; color: #fff; }
+        /* Styles des scores */
+        .score-set { font-family: 'Orbitron', sans-serif; font-size: 8vw; font-weight: 900; color: #fff; }
+        .score-games { font-family: 'Orbitron', sans-serif; font-size: 10vw; font-weight: 900; color: #888; }
         .score-main { font-family: 'Orbitron', sans-serif; font-size: 16vw; font-weight: 900; }
 
         .row-green { border-left: 3vw solid #4CAF50; }
@@ -73,7 +77,7 @@
         .row-blue { border-left: 3vw solid #2196F3; }
         .row-blue .name, .row-blue .score-main { color: #2196F3; }
 
-        /* Barre de statut dorée */
+        /* Barre de statut */
         .status-bar { height: 12vh; background: #000; display: flex; justify-content: center; align-items: center; border-top: 2px solid #222; }
         .gold-badge { 
             color: #FFD600; font-size: 3.5vw; font-weight: 900; 
@@ -105,7 +109,8 @@
             <thead>
                 <tr>
                     <th class="col-names">Équipes</th>
-                    <th class="col-set">Sets</th>
+                    <th class="col-sets">Sets</th>
+                    <th class="col-games">Jeux</th>
                     <th class="col-points">Points</th>
                 </tr>
             </thead>
@@ -118,6 +123,7 @@
                         </div>
                     </td>
                     <td><span id="stA" class="score-set">0</span></td>
+                    <td><span id="gA" class="score-games">0</span></td>
                     <td class="col-points"><span id="sA" class="score-main">0</span></td>
                 </tr>
                 <tr class="row-blue">
@@ -128,6 +134,7 @@
                         </div>
                     </td>
                     <td><span id="stB" class="score-set">0</span></td>
+                    <td><span id="gB" class="score-games">0</span></td>
                     <td class="col-points"><span id="sB" class="score-main">0</span></td>
                 </tr>
             </tbody>
@@ -189,17 +196,24 @@
             document.getElementById('nB1').innerText = d.pB1; 
             document.getElementById('nB2').innerText = d.pB2;
             
-            // Mise à jour Scores (Gestion Tie-break incluse)
+            // Mise à jour des Jeux (Nouveau)
+            document.getElementById('gA').innerText = d.gamesA || 0;
+            document.getElementById('gB').innerText = d.gamesB || 0;
+
+            // Mise à jour Scores / Points (Gestion Tie-break incluse)
             const isTB = (d.gamesA === 6 && d.gamesB === 6);
             document.getElementById('sA').innerText = isTB ? d.scoreA : (labels[d.scoreA] || "0");
             document.getElementById('sB').innerText = isTB ? d.scoreB : (labels[d.scoreB] || "0");
             
-            // Affichage des Sets (V5 utilise uniquement le compteur de sets gagnés pour plus de clarté TV)
+            // Affichage des Sets
             document.getElementById('stA').innerText = d.setsA; 
             document.getElementById('stB').innerText = d.setsB;
 
-            // Gestion du badge d'alerte (Optionnel - basé sur le score)
+            // Gestion du badge d'alerte
             if (d.scoreA === 4 || d.scoreB === 4) {
+                badge.innerText = "AVANTAGE";
+                badge.style.display = "block";
+            } else if ((d.scoreA === 3 && d.scoreB < 3) || (d.scoreB === 3 && d.scoreA < 3)) {
                 badge.innerText = "BALLE DE JEU";
                 badge.style.display = "block";
             } else {
