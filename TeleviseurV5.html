@@ -2,23 +2,31 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>ScoreTrak TV Pro - V5.2</title>
+    <title>ScoreTrak TV Pro - V5 FINAL</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@700;900&display=swap');
 
-        body { 
-            background: #000; color: white; font-family: 'Inter', sans-serif; 
-            margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column;
-        }
+        body { background: #000; color: white; font-family: 'Inter', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
 
-        #main-ui { flex: 1; display: flex; flex-direction: column; }
+        /* 1. ÉCRAN VEILLE (PUB + QR) */
+        #idle-screen { position: fixed; inset: 0; display: flex; z-index: 500; background: #000; }
+        .ad-space { flex: 1.8; border-right: 2px solid #1a1a1a; display: flex; justify-content: center; align-items: center; background: radial-gradient(circle at center, #111 0%, #000 100%); }
+        .qr-space { flex: 1.2; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #050505; }
+        .qr-frame { background: white; padding: 20px; border-radius: 20px; }
+        .qr-frame img { width: 22vw; height: 22vw; display: block; }
+        .qr-text { margin-top: 30px; font-size: 1.8vw; color: #ccff00; text-align: center; text-transform: uppercase; }
+
+        /* 2. ÉCRAN SETUP (DÉMARRAGE) */
+        #setup-screen { position: fixed; inset: 0; background: #000; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 550; }
+        .logo-setup { font-size: 10vw; color: #ccff00; font-style: italic; animation: pulse 1.5s infinite; }
+
+        /* 3. TABLEAU DE SCORE (MATCH) */
+        #main-ui { height: 100vh; display: flex; flex-direction: column; visibility: hidden; }
         
         .header { 
-            display: grid; 
-            grid-template-columns: 2.2fr 0.7fr 0.7fr 0.7fr 1.5fr; 
-            background: #0a0a0a; padding: 15px 0; 
-            font-size: 1.1vw; color: #444; text-transform: uppercase; letter-spacing: 4px; text-align: center;
-            border-bottom: 1px solid #151515;
+            display: grid; grid-template-columns: 2.2fr 0.7fr 0.7fr 0.7fr 1.5fr; 
+            background: #0a0a0a; padding: 15px 0; font-size: 1.1vw; color: #444; 
+            text-transform: uppercase; letter-spacing: 4px; text-align: center; border-bottom: 1px solid #151515;
         }
 
         .team-row { flex: 1; display: grid; grid-template-columns: 2.2fr 0.7fr 0.7fr 0.7fr 1.5fr; align-items: center; position: relative; border-bottom: 1px solid #111; }
@@ -33,7 +41,6 @@
         .name-vert { color: #4CAF50; }
         .name-bleu { color: #2196F3; }
 
-        /* Balle de service à DROITE des noms */
         .serve-ball { width: 2.2vw; height: 2.2vw; background: #ccff00; border-radius: 50%; box-shadow: 0 0 20px #ccff00; display: none; }
 
         .set-digit { font-family: 'Orbitron', sans-serif; font-size: 8.5vw; text-align: center; color: white; }
@@ -41,8 +48,7 @@
         
         .points-box { 
             height: 100%; display: flex; align-items: center; justify-content: center; 
-            font-size: 15vw; font-family: 'Orbitron', sans-serif; background: #030303;
-            border-left: 2px solid #111;
+            font-size: 15vw; font-family: 'Orbitron', sans-serif; background: #030303; border-left: 2px solid #111;
         }
         .pts-vert { color: #4CAF50; }
         .pts-bleu { color: #2196F3; }
@@ -52,11 +58,28 @@
             font-family: 'Orbitron', sans-serif; font-size: 4vw; color: #FFD700; 
             text-transform: uppercase; letter-spacing: 15px; border-top: 2px solid #151515;
         }
+
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
         .blink { animation: flash 1s infinite; }
         @keyframes flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
     </style>
 </head>
 <body>
+
+    <div id="idle-screen">
+        <div class="ad-space">
+            <div style="font-size: 5vw; color: #ccff00; font-style: italic; border: 3px solid #222; padding: 50px; border-radius: 40px; text-align: center;">VOTRE PUB ICI</div>
+        </div>
+        <div class="qr-space">
+            <div class="qr-frame"><img id="qr-code-img" src="" alt="QR Code"></div>
+            <div class="qr-text">Scanner pour<br>gérer le match</div>
+        </div>
+    </div>
+
+    <div id="setup-screen">
+        <div class="logo-setup">ScoreTrak</div>
+        <div style="color: white; letter-spacing: 5px; margin-top: 20px;">CONFIGURATION EN COURS...</div>
+    </div>
 
     <div id="main-ui">
         <div class="header">
@@ -67,8 +90,8 @@
             <div class="side-bar side-vert"></div>
             <div class="names-container">
                 <div class="players-list">
-                    <div id="pA1" class="player-name name-vert">-</div>
-                    <div id="pA2" class="player-name name-vert">-</div>
+                    <div id="nA1" class="player-name name-vert">-</div>
+                    <div id="nA2" class="player-name name-vert">-</div>
                 </div>
                 <div id="ballA" class="serve-ball"></div>
             </div>
@@ -82,8 +105,8 @@
             <div class="side-bar side-bleu"></div>
             <div class="names-container">
                 <div class="players-list">
-                    <div id="pB1" class="player-name name-bleu">-</div>
-                    <div id="pB2" class="player-name name-bleu">-</div>
+                    <div id="nB1" class="player-name name-bleu">-</div>
+                    <div id="nB2" class="player-name name-bleu">-</div>
                 </div>
                 <div id="ballB" class="serve-ball"></div>
             </div>
@@ -104,63 +127,73 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
+        const urlSmartphone = "https://score-trak.vercel.app/SmartphoneV5.html";
+        document.getElementById('qr-code-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(urlSmartphone)}&color=000000`;
+
         onValue(ref(db, 'match/terrain1'), (snap) => {
             const d = snap.val();
-            if (!d || d.status !== 'active') return;
-
             const labels = ["0", "15", "30", "40", "AD"];
+            
+            const idle = document.getElementById('idle-screen');
+            const setup = document.getElementById('setup-screen');
+            const ui = document.getElementById('main-ui');
 
-            // Récupération Noms
-            document.getElementById('pA1').innerText = d.pA1 || "";
-            document.getElementById('pA2').innerText = d.pA2 || "";
-            document.getElementById('pB1').innerText = d.pB1 || "";
-            document.getElementById('pB2').innerText = d.pB2 || "";
+            if (!d || d.status === 'idle') {
+                idle.style.display = 'flex'; setup.style.display = 'none'; ui.style.visibility = 'hidden';
+                return;
+            }
+            if (d.status === 'setup') {
+                idle.style.display = 'none'; setup.style.display = 'flex'; ui.style.visibility = 'hidden';
+                return;
+            }
 
-            // Service à Droite
+            idle.style.display = 'none'; setup.style.display = 'none'; ui.style.visibility = 'visible';
+
+            // Noms & Service (A droite)
+            document.getElementById('nA1').innerText = d.pA1 || "";
+            document.getElementById('nA2').innerText = d.pA2 || "";
+            document.getElementById('nB1').innerText = d.pB1 || "";
+            document.getElementById('nB2').innerText = d.pB2 || "";
             document.getElementById('ballA').style.display = (d.serverTeam === 'A') ? 'block' : 'none';
             document.getElementById('ballB').style.display = (d.serverTeam === 'B') ? 'block' : 'none';
 
-            // Points (Reprise de ta logique sA/sB)
+            // Points & Sets
             document.getElementById('sA').innerText = labels[d.scoreA] || d.scoreA;
             document.getElementById('sB').innerText = labels[d.scoreB] || d.scoreB;
-
-            // Jeux et Sets (Reprise de ta logique gA/stA)
             document.getElementById('set1A').innerText = d.gamesA;
             document.getElementById('set1B').innerText = d.gamesB;
-            // On pourra itérer ici pour set2A/set3A quand ta logique sera prête
+            // Gestion sets suivants (S2, S3)
+            document.getElementById('set2A').innerText = d.set2A || 0;
+            document.getElementById('set2B').innerText = d.set2B || 0;
+            if(d.setsA + d.setsB >= 1) { 
+                document.getElementById('set2A').classList.remove('dimmed');
+                document.getElementById('set2B').classList.remove('dimmed');
+            }
 
-            // --- LOGIQUE BANDEAU CONTEXTUEL ---
+            // --- BANDEAU INFO ---
             const banner = document.getElementById('info-banner');
-            banner.innerText = "";
-            banner.classList.remove('blink');
+            banner.innerText = ""; banner.classList.remove('blink');
 
-            const sA = d.scoreA; 
-            const sB = d.scoreB;
-
-            // BALLE DE MATCH
-            if((d.setsA === d.maxSets - 1 && d.gamesA >= 5 && sA >= 3 && sA > sB) || 
-               (d.setsB === d.maxSets - 1 && d.gamesB >= 5 && sB >= 3 && sB > sA)) {
+            const scA = d.scoreA; const scB = d.scoreB;
+            
+            if((d.setsA === d.maxSets - 1 && d.gamesA >= 5 && scA >= 3 && scA > scB) || 
+               (d.setsB === d.maxSets - 1 && d.gamesB >= 5 && scB >= 3 && scB > scA)) {
                 banner.innerText = "BALLE DE MATCH"; banner.classList.add('blink');
             } 
-            // BALLE DE SET
-            else if((d.gamesA >= 5 && sA >= 3 && sA > sB) || (d.gamesB >= 5 && sB >= 3 && sB > sA)) {
+            else if((d.gamesA >= 5 && scA >= 3 && scA > scB) || (d.gamesB >= 5 && scB >= 3 && scB > scA)) {
                 banner.innerText = "BALLE DE SET";
             }
-            // BALLE DE BREAK (Pas à 40-40 si Avantage)
             else {
                 let isBreak = false;
                 if (d.rule === 'decisif') {
-                    if (d.serverTeam === 'A' && sB === 3) isBreak = true;
-                    if (d.serverTeam === 'B' && sA === 3) isBreak = true;
+                    if (d.serverTeam === 'A' && scB === 3) isBreak = true;
+                    if (d.serverTeam === 'B' && scA === 3) isBreak = true;
                 } else {
-                    if (d.serverTeam === 'A' && (sB === 4 || (sB === 3 && sA < 3))) isBreak = true;
-                    if (d.serverTeam === 'B' && (sA === 4 || (sA === 3 && sB < 3))) isBreak = true;
+                    if (d.serverTeam === 'A' && (scB === 4 || (scB === 3 && scA < 3))) isBreak = true;
+                    if (d.serverTeam === 'B' && (scA === 4 || (scA === 3 && scB < 3))) isBreak = true;
                 }
-
                 if (isBreak) banner.innerText = "BALLE DE BREAK";
-                // BALLE DE JEU (Si serveur peut conclure)
-                else if ((d.serverTeam === 'A' && sA >= 3 && sA > sB) || 
-                         (d.serverTeam === 'B' && sB >= 3 && sB > sA)) {
+                else if ((d.serverTeam === 'A' && scA >= 3 && scA > scB) || (d.serverTeam === 'B' && scB >= 3 && scB > scA)) {
                     banner.innerText = "BALLE DE JEU";
                 }
             }
