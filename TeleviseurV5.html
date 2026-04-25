@@ -2,22 +2,22 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>ScoreTrak TV Pro</title>
+    <title>ScoreTrak TV Pro - Live Padel</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@700;900&display=swap');
 
         body { background: #000; color: white; font-family: 'Inter', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
 
-        /* ÉCRANS INTERMÉDIAIRES */
+        /* ÉCRANS ÉTATS */
         #idle-screen { position: fixed; inset: 0; display: flex; z-index: 500; background: #000; }
         .ad-space { flex: 1.8; border-right: 2px solid #1a1a1a; display: flex; justify-content: center; align-items: center; }
         .qr-space { flex: 1.2; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #050505; }
-        .qr-frame { background: white; padding: 20px; border-radius: 20px; }
+        .qr-frame { background: white; padding: 15px; border-radius: 15px; }
         .qr-frame img { width: 22vw; height: 22vw; }
 
         #setup-screen { position: fixed; inset: 0; background: #000; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 550; }
 
-        /* TABLEAU DE SCORE */
+        /* TABLEAU DE SCORE PRO */
         #main-ui { height: 100vh; display: flex; flex-direction: column; visibility: hidden; }
         
         .header { 
@@ -32,19 +32,18 @@
         .side-vert { background: #4CAF50; box-shadow: 8px 0 20px rgba(76, 175, 80, 0.3); }
         .side-bleu { background: #2196F3; box-shadow: 8px 0 20px rgba(33, 150, 243, 0.3); }
 
-        .names-container { padding-left: 5vw; display: flex; align-items: center; justify-content: space-between; padding-right: 2vw; }
+        .names-container { padding-left: 5vw; display: flex; align-items: center; justify-content: space-between; padding-right: 3vw; }
         .players-list { display: flex; flex-direction: column; gap: 5px; }
-        .player-name { font-size: 3.2vw; font-weight: 900; text-transform: uppercase; line-height: 1; }
+        .player-name { font-size: 3vw; font-weight: 900; text-transform: uppercase; line-height: 1; }
         .name-vert { color: #4CAF50; }
         .name-bleu { color: #2196F3; }
 
-        /* BALLE À DROITE DU JOUEUR */
-        .serve-ball { width: 2.2vw; height: 2.2vw; background: #ccff00; border-radius: 50%; box-shadow: 0 0 20px #ccff00; display: none; }
+        .serve-ball { width: 2.5vw; height: 2.5vw; background: #ccff00; border-radius: 50%; box-shadow: 0 0 25px #ccff00; display: none; }
 
-        .set-digit { font-family: 'Orbitron', sans-serif; font-size: 8.5vw; text-align: center; color: white; }
-        .set-digit.dimmed { color: #111; }
+        .digit { font-family: 'Orbitron', sans-serif; font-size: 8.5vw; text-align: center; color: white; }
+        .dim { color: #111; }
         
-        .points-box { 
+        .pts-box { 
             height: 100%; display: flex; align-items: center; justify-content: center; 
             font-size: 15vw; font-family: 'Orbitron', sans-serif; background: #030303; border-left: 2px solid #111;
         }
@@ -62,17 +61,14 @@
 <body>
 
     <div id="idle-screen">
-        <div class="ad-space"><div style="font-size: 5vw; color: #ccff00; border: 3px solid #222; padding: 50px; border-radius: 40px;">VOTRE PUB ICI</div></div>
+        <div class="ad-space"><div style="font-size: 5vw; color: #ccff00; font-style: italic; border: 3px solid #222; padding: 40px; border-radius: 40px;">SCORE<span style="color:white">TRAK</span></div></div>
         <div class="qr-space">
             <div class="qr-frame"><img id="qr-code-img" src=""></div>
             <div style="color:#ccff00; margin-top:20px; font-size:1.5vw;">SCANNER POUR JOUER</div>
         </div>
     </div>
 
-    <div id="setup-screen">
-        <div style="font-size: 8vw; color: #ccff00;">ScoreTrak</div>
-        <div style="color: white; letter-spacing: 5px;">CONFIGURATION EN COURS...</div>
-    </div>
+    <div id="setup-screen"><div style="font-size: 8vw; color: #ccff00;">CONFIGURATION...</div></div>
 
     <div id="main-ui">
         <div class="header"><div>Équipes</div><div>S1</div><div>S2</div><div>S3</div><div>Jeu</div></div>
@@ -80,33 +76,22 @@
         <div class="team-row">
             <div class="side-bar side-vert"></div>
             <div class="names-container">
-                <div class="players-list">
-                    <div id="nA1" class="player-name name-vert">-</div>
-                    <div id="nA2" class="player-name name-vert">-</div>
-                </div>
+                <div class="players-list"><div id="nA1" class="player-name name-vert">-</div><div id="nA2" class="player-name name-vert">-</div></div>
                 <div id="ballA" class="serve-ball"></div>
             </div>
-            <div id="g1A" class="set-digit">0</div>
-            <div id="g2A" class="set-digit dimmed">0</div>
-            <div id="g3A" class="set-digit dimmed">0</div>
-            <div class="points-box pts-vert" id="sA" style="color: #4CAF50;">0</div>
+            <div id="g1A" class="digit">0</div><div id="g2A" class="digit dim">0</div><div id="g3A" class="digit dim">0</div>
+            <div class="pts-box" id="ptsA" style="color: #4CAF50;">0</div>
         </div>
 
         <div class="team-row">
             <div class="side-bar side-bleu"></div>
             <div class="names-container">
-                <div class="players-list">
-                    <div id="nB1" class="player-name name-bleu">-</div>
-                    <div id="nB2" class="player-name name-bleu">-</div>
-                </div>
+                <div class="players-list"><div id="nB1" class="player-name name-bleu">-</div><div id="nB2" class="player-name name-bleu">-</div></div>
                 <div id="ballB" class="serve-ball"></div>
             </div>
-            <div id="g1B" class="set-digit">0</div>
-            <div id="g2B" class="set-digit dimmed">0</div>
-            <div id="g3B" class="set-digit dimmed">0</div>
-            <div class="points-box pts-bleu" id="sB" style="color: #2196F3;">0</div>
+            <div id="g1B" class="digit">0</div><div id="g2B" class="digit dim">0</div><div id="g3B" class="digit dim">0</div>
+            <div class="pts-box" id="ptsB" style="color: #2196F3;">0</div>
         </div>
-
         <div id="info-banner"></div>
     </div>
 
@@ -122,57 +107,59 @@
             const d = snap.val();
             if (!d) return;
 
-            // Gestion des écrans
+            // Écrans
             document.getElementById('idle-screen').style.display = (d.status === 'idle') ? 'flex' : 'none';
             document.getElementById('setup-screen').style.display = (d.status === 'setup') ? 'flex' : 'none';
             document.getElementById('main-ui').style.visibility = (d.status === 'active') ? 'visible' : 'hidden';
 
             if (d.status !== 'active') {
-                const url = "https://score-trak.vercel.app/SmartphoneV5.html";
-                document.getElementById('qr-code-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(url)}`;
+                document.getElementById('qr-code-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent("https://score-trak.vercel.app/SmartphoneV5.html")}`;
                 return;
             }
 
-            // Noms
-            document.getElementById('nA1').innerText = d.pA1 || ""; document.getElementById('nA2').innerText = d.pA2 || "";
-            document.getElementById('nB1').innerText = d.pB1 || ""; document.getElementById('nB2').innerText = d.pB2 || "";
-
-            // Service à droite
+            // Noms & Service
+            document.getElementById('nA1').innerText = d.pA1; document.getElementById('nA2').innerText = d.pA2;
+            document.getElementById('nB1').innerText = d.pB1; document.getElementById('nB2').innerText = d.pB2;
             document.getElementById('ballA').style.display = (d.serverTeam === 'A') ? 'block' : 'none';
             document.getElementById('ballB').style.display = (d.serverTeam === 'B') ? 'block' : 'none';
 
-            // Points Padel (Labels stricts)
+            // Points Padel
             const labels = ["0", "15", "30", "40", "AD"];
-            document.getElementById('sA').innerText = labels[d.scoreA] || d.scoreA;
-            document.getElementById('sB').innerText = labels[d.scoreB] || d.scoreB;
+            document.getElementById('ptsA').innerText = labels[d.scoreA] || "0";
+            document.getElementById('ptsB').innerText = labels[d.scoreB] || "0";
 
             // Jeux
-            document.getElementById('g1A').innerText = d.gamesA;
-            document.getElementById('g1B').innerText = d.gamesB;
+            document.getElementById('g1A').innerText = d.gamesA; document.getElementById('g1B').innerText = d.gamesB;
 
-            // Bandeau d'infos
+            // Logique du Bandeau Contextuel
             const banner = document.getElementById('info-banner');
             banner.innerText = ""; banner.classList.remove('blink');
 
-            const scA = d.scoreA; const scB = d.scoreB;
+            const sA = d.scoreA; const sB = d.scoreB;
             const isNoAd = d.rule === 'decisif';
 
-            // Logique Contextuelle
-            if((d.setsA === d.maxSets - 1 && d.gamesA >= 5 && scA >= 3 && scA > scB) || (d.setsB === d.maxSets - 1 && d.gamesB >= 5 && scB >= 3 && scB > scA)) {
+            // 1. BALLE DE MATCH
+            if((d.setsA === d.maxSets-1 && d.gamesA >= 5 && sA >= 3 && sA > sB) || (d.setsB === d.maxSets-1 && d.gamesB >= 5 && sB >= 3 && sB > sA)) {
                 banner.innerText = "BALLE DE MATCH"; banner.classList.add('blink');
-            } else if((d.gamesA >= 5 && scA >= 3 && scA > scB) || (d.gamesB >= 5 && scB >= 3 && scB > scA)) {
+            } 
+            // 2. BALLE DE SET
+            else if((d.gamesA >= 5 && sA >= 3 && sA > sB) || (d.gamesB >= 5 && sB >= 3 && sB > sA)) {
                 banner.innerText = "BALLE DE SET";
-            } else {
-                let isBreak = false;
-                if (isNoAd) {
-                    if (d.serverTeam === 'A' && scB === 3) isBreak = true;
-                    if (d.serverTeam === 'B' && scA === 3) isBreak = true;
+            }
+            // 3. BALLE DE BREAK (Vigilance sur le 40-40)
+            else {
+                let breakPoss = false;
+                if(isNoAd) {
+                    if(d.serverTeam === 'A' && sB === 3 && sA === 3) breakPoss = true; // Point décisif
+                    if(d.serverTeam === 'B' && sA === 3 && sB === 3) breakPoss = true;
                 } else {
-                    if (d.serverTeam === 'A' && (scB === 4 || (scB === 3 && scA < 3))) isBreak = true;
-                    if (d.serverTeam === 'B' && (scA === 4 || (scA === 3 && scB < 3))) isBreak = true;
+                    if(d.serverTeam === 'A' && (sB === 4 || (sB === 3 && sA < 3))) breakPoss = true; // AD ou 0-40/15-40/30-40
+                    if(d.serverTeam === 'B' && (sA === 4 || (sA === 3 && sB < 3))) breakPoss = true;
                 }
-                if (isBreak) banner.innerText = "BALLE DE BREAK";
-                else if ((d.serverTeam === 'A' && scA >= 3 && scA > scB) || (d.serverTeam === 'B' && scB >= 3 && scB > scA)) {
+                
+                if(breakPoss) banner.innerText = "BALLE DE BREAK";
+                // 4. BALLE DE JEU
+                else if((d.serverTeam === 'A' && sA >= 3 && sA > sB) || (d.serverTeam === 'B' && sB >= 3 && sB > sA)) {
                     banner.innerText = "BALLE DE JEU";
                 }
             }
