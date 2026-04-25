@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>ScoreTrak TV - Pro Broadcast</title>
+    <title>ScoreTrak TV Pro</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@700;900&display=swap');
         body { background: #000; color: white; font-family: 'Inter', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
@@ -30,13 +30,13 @@
 </head>
 <body>
     <div id="idle-screen">
-        <div class="ad-space"><div style="font-size: 5vw; color: #ccff00; font-style: italic; border: 3px solid #222; padding: 50px; border-radius: 40px;">PUB</div></div>
-        <div class="qr-space"><div class="qr-frame"><img id="qr-code-img" src=""></div></div>
+        <div class="ad-space"><div style="font-size: 5vw; color: #ccff00; font-style: italic; border: 3px solid #222; padding: 50px; border-radius: 40px;">SCORE<span style="color:white">TRAK</span></div></div>
+        <div class="qr-space"><div class="qr-frame"><img id="qr-code-img" src=""></div><div style="color:#ccff00; margin-top:20px; font-size:1.5vw;">SCANNER POUR JOUER</div></div>
     </div>
     <div id="setup-screen"><div class="logo-setup">ScoreTrak</div></div>
     <div id="main-ui" class="main-container">
-        <div class="row"><div class="side-bar side-vert"></div><div class="names-container"><div id="nA" class="player-name" style="color:#4CAF50;"></div><div id="ballA" class="serve-ball"></div></div><div id="g1A" class="digit">0</div><div id="g2A" class="digit" style="color:#222">0</div><div id="g3A" class="digit" style="color:#222">0</div><div id="sA" class="pts" style="color:#4CAF50;">0</div></div>
-        <div class="row" style="border:none;"><div class="side-bar side-bleu"></div><div class="names-container"><div id="nB" class="player-name" style="color:#2196F3;"></div><div id="ballB" class="serve-ball"></div></div><div id="g1B" class="digit">0</div><div id="g2B" class="digit" style="color:#222">0</div><div id="g3B" class="digit" style="color:#222">0</div><div id="sB" class="pts" style="color:#2196F3;">0</div></div>
+        <div class="row"><div class="side-bar side-vert"></div><div class="names-container"><div id="nA" class="player-name" style="color:#4CAF50;"></div><div id="ballA" class="serve-ball"></div></div><div id="g1A" class="digit">0</div><div id="g2A" class="digit" style="color:#222">0</div><div id="g3A" class="digit" style="color:#222">0</div><div id="sA_ui" class="pts" style="color:#4CAF50;">0</div></div>
+        <div class="row" style="border:none;"><div class="side-bar side-bleu"></div><div class="names-container"><div id="nB" class="player-name" style="color:#2196F3;"></div><div id="ballB" class="serve-ball"></div></div><div id="g1B" class="digit">0</div><div id="g2B" class="digit" style="color:#222">0</div><div id="g3B" class="digit" style="color:#222">0</div><div id="sB_ui" class="pts" style="color:#2196F3;">0</div></div>
     </div>
     <div id="info-banner"></div>
 
@@ -44,9 +44,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
         const firebaseConfig = { apiKey: "AIzaSyCjlHL7GEXFvnrNzZAIEZyl-WCqUI3txiM", authDomain: "scoretrak-123.firebaseapp.com", databaseURL: "https://scoretrak-123-default-rtdb.europe-west1.firebasedatabase.app", projectId: "scoretrak-123" };
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-
+        const app = initializeApp(firebaseConfig); const db = getDatabase(app);
         onValue(ref(db, 'match/terrain1'), (snap) => {
             const d = snap.val(); if (!d) return;
             const labels = ["0", "15", "30", "40", "AD"];
@@ -57,16 +55,17 @@
             if (d.status === 'active') {
                 document.getElementById('nA').innerText = d.pA1 + " / " + d.pA2;
                 document.getElementById('nB').innerText = d.pB1 + " / " + d.pB2;
-                document.getElementById('sA').innerText = labels[d.scoreA] || d.scoreA;
-                document.getElementById('sB').innerText = labels[d.scoreB] || d.scoreB;
+                document.getElementById('sA_ui').innerText = labels[d.scoreA] || d.scoreA;
+                document.getElementById('sB_ui').innerText = labels[d.scoreB] || d.scoreB;
                 document.getElementById('g1A').innerText = d.gamesA; document.getElementById('g1B').innerText = d.gamesB;
                 document.getElementById('ballA').style.display = (d.serverTeam === 'A') ? 'block' : 'none';
                 document.getElementById('ballB').style.display = (d.serverTeam === 'B') ? 'block' : 'none';
-                
-                const banner = document.getElementById('info-banner'); banner.innerText = "";
-                if((d.setsA === d.maxSets-1 && d.gamesA >= 5 && d.scoreA >= 3 && d.scoreA > d.scoreB) || (d.setsB === d.maxSets-1 && d.gamesB >= 5 && d.scoreB >= 3 && d.scoreB > d.scoreA)) { banner.innerText = "BALLE DE MATCH"; banner.classList.add('blink'); }
-                else if((d.gamesA >= 5 && d.scoreA >= 3 && d.scoreA > d.scoreB) || (d.gamesB >= 5 && d.scoreB >= 3 && d.scoreB > d.scoreA)) { banner.innerText = "BALLE DE SET"; }
-                else if((d.serverTeam === 'A' && d.scoreB >= 3 && d.scoreB > d.scoreA) || (d.serverTeam === 'B' && d.scoreA >= 3 && d.scoreA > d.scoreB)) { banner.innerText = "BALLE DE BREAK"; }
+                const banner = document.getElementById('info-banner'); banner.innerText = ""; banner.classList.remove('blink');
+                const sA = d.scoreA; const sB = d.scoreB;
+                if((d.setsA === d.maxSets-1 && d.gamesA >= 5 && sA >= 3 && sA > sB) || (d.setsB === d.maxSets-1 && d.gamesB >= 5 && sB >= 3 && sB > sA)) { banner.innerText = "BALLE DE MATCH"; banner.classList.add('blink'); }
+                else if((d.gamesA >= 5 && sA >= 3 && sA > sB) || (d.gamesB >= 5 && sB >= 3 && sB > sA)) { banner.innerText = "BALLE DE SET"; }
+                else if((d.serverTeam === 'A' && (sB === 4 || (sB === 3 && sA < 3))) || (d.serverTeam === 'B' && (sA === 4 || (sA === 3 && sB < 3)))) { banner.innerText = "BALLE DE BREAK"; }
+                else if((d.serverTeam === 'A' && sA >= 3 && sA > sB) || (d.serverTeam === 'B' && sB >= 3 && sB > sA)) { banner.innerText = "BALLE DE JEU"; }
             }
         });
     </script>
