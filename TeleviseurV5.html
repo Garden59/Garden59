@@ -27,16 +27,16 @@
         .qr-frame img { width: 20vw; height: 20vw; display: block; }
         .qr-text { margin-top: 30px; font-size: 1.8vw; color: #ccff00; text-align: center; text-transform: uppercase; font-family: 'Orbitron'; }
 
-        /* --- ÉCRAN SETUP --- */
+        /* --- ÉCRAN SETUP (Exactement selon ton code) --- */
         #setup-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 550; }
-        .logo-setup { font-size: 10vw; color: #ccff00; font-style: italic; font-weight: 900; animation: pulse 1.5s infinite; }
+        .logo-setup { font-size: 10vw; color: #ccff00; font-style: italic; animation: pulse 1.5s infinite; font-weight: 900; }
 
         /* --- ÉCRAN VICTOIRE --- */
         #victory-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 600; text-align: center; }
         .victoire-title { font-size: 10vw; color: #ccff00; text-shadow: 0 0 50px rgba(204, 255, 0, 0.5); font-family: 'Orbitron'; }
         .victoire-names { font-size: 5vw; color: white; margin-top: 20px; font-weight: 900; }
 
-        /* --- SCOREBOARD PRINCIPAL --- */
+        /* --- SCOREBOARD PRINCIPAL (Design V5) --- */
         #main-ui { flex: 1; display: flex; flex-direction: column; width: 100%; visibility: hidden; }
         table { width: 100%; height: 100%; border-collapse: collapse; table-layout: fixed; }
         thead th { background: #111; color: #555; font-size: 1.5vw; padding: 1.5vh; text-transform: uppercase; border-bottom: 2px solid #222; }
@@ -162,7 +162,6 @@
             const victory = document.getElementById('victory-screen');
             const badge = document.getElementById('status-badge');
 
-            // 1. Gestion des états (Veille / Setup / Inactif)
             if (!d || d.status === 'idle' || !d.active) {
                 idle.style.display = 'flex';
                 setup.style.display = 'none';
@@ -180,7 +179,6 @@
                 return;
             }
 
-            // 2. Mode Match Actif
             idle.style.display = 'none';
             setup.style.display = 'none';
             main.style.visibility = 'visible';
@@ -195,16 +193,14 @@
                 stopConfetti();
             }
 
-            // Mise à jour des noms
+            // Mise à jour ScoreTrak
             document.getElementById('nA1').innerText = d.pA1; document.getElementById('nA2').innerText = d.pA2;
             document.getElementById('nB1').innerText = d.pB1; document.getElementById('nB2').innerText = d.pB2;
             
-            // Points (Gestion Tie-break)
             const isTB = (d.gamesA === 6 && d.gamesB === 6);
             document.getElementById('sA').innerText = isTB ? d.scoreA : (labels[d.scoreA] || "0");
             document.getElementById('sB').innerText = isTB ? d.scoreB : (labels[d.scoreB] || "0");
             
-            // Jeux et Sets
             document.getElementById('gA').innerText = d.gamesA; document.getElementById('gB').innerText = d.gamesB;
             document.getElementById('stA').innerText = d.setsA; document.getElementById('stB').innerText = d.setsB;
 
@@ -213,7 +209,7 @@
             const current = 'b' + d.serverTeam + d.serverNum;
             if(document.getElementById(current)) document.getElementById(current).style.display = 'block';
 
-            // Badge d'alerte (Exemple balle de match)
+            // Alerte
             if (d.scoreA === 4 || d.scoreB === 4) {
                 badge.innerText = "BALLE DE JEU";
                 badge.style.display = "block";
