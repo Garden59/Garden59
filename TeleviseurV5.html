@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>ScoreTrak TV Pro - V5.1</title>
+    <title>ScoreTrak TV Pro - V5.2</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@700;900&display=swap');
 
@@ -11,7 +11,6 @@
             margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column;
         }
 
-        /* --- TABLEAU DE SCORE PRO --- */
         #main-ui { flex: 1; display: flex; flex-direction: column; }
         
         .header { 
@@ -28,14 +27,14 @@
         .side-vert { background: #4CAF50; box-shadow: 8px 0 20px rgba(76, 175, 80, 0.3); }
         .side-bleu { background: #2196F3; box-shadow: 8px 0 20px rgba(33, 150, 243, 0.3); }
 
-        /* Affichage des 2 joueurs par équipe */
-        .names-container { padding-left: 5vw; display: flex; align-items: center; }
+        .names-container { padding-left: 5vw; display: flex; align-items: center; justify-content: space-between; padding-right: 2vw; }
         .players-list { display: flex; flex-direction: column; gap: 5px; }
         .player-name { font-size: 3.2vw; font-weight: 900; text-transform: uppercase; line-height: 1; }
         .name-vert { color: #4CAF50; }
         .name-bleu { color: #2196F3; }
 
-        .serve-ball { width: 2.5vw; height: 2.5vw; background: #ccff00; border-radius: 50%; margin-right: 25px; box-shadow: 0 0 25px #ccff00; display: none; }
+        /* Balle de service à DROITE des noms */
+        .serve-ball { width: 2.2vw; height: 2.2vw; background: #ccff00; border-radius: 50%; box-shadow: 0 0 20px #ccff00; display: none; }
 
         .set-digit { font-family: 'Orbitron', sans-serif; font-size: 8.5vw; text-align: center; color: white; }
         .set-digit.dimmed { color: #111; }
@@ -67,31 +66,31 @@
         <div class="team-row">
             <div class="side-bar side-vert"></div>
             <div class="names-container">
-                <div id="ballA" class="serve-ball"></div>
                 <div class="players-list">
                     <div id="pA1" class="player-name name-vert">-</div>
                     <div id="pA2" class="player-name name-vert">-</div>
                 </div>
+                <div id="ballA" class="serve-ball"></div>
             </div>
             <div id="set1A" class="set-digit">0</div>
             <div id="set2A" class="set-digit dimmed">0</div>
             <div id="set3A" class="set-digit dimmed">0</div>
-            <div class="points-box pts-vert" id="ptsA">0</div>
+            <div class="points-box pts-vert" id="sA">0</div>
         </div>
 
         <div class="team-row">
             <div class="side-bar side-bleu"></div>
             <div class="names-container">
-                <div id="ballB" class="serve-ball"></div>
                 <div class="players-list">
                     <div id="pB1" class="player-name name-bleu">-</div>
                     <div id="pB2" class="player-name name-bleu">-</div>
                 </div>
+                <div id="ballB" class="serve-ball"></div>
             </div>
             <div id="set1B" class="set-digit">0</div>
             <div id="set2B" class="set-digit dimmed">0</div>
             <div id="set3B" class="set-digit dimmed">0</div>
-            <div class="points-box pts-bleu" id="ptsB">0</div>
+            <div class="points-box pts-bleu" id="sB">0</div>
         </div>
 
         <div id="info-banner"></div>
@@ -109,63 +108,59 @@
             const d = snap.val();
             if (!d || d.status !== 'active') return;
 
-            // Noms des 4 joueurs
+            const labels = ["0", "15", "30", "40", "AD"];
+
+            // Récupération Noms
             document.getElementById('pA1').innerText = d.pA1 || "";
             document.getElementById('pA2').innerText = d.pA2 || "";
             document.getElementById('pB1').innerText = d.pB1 || "";
             document.getElementById('pB2').innerText = d.pB2 || "";
 
-            // Service
+            // Service à Droite
             document.getElementById('ballA').style.display = (d.serverTeam === 'A') ? 'block' : 'none';
             document.getElementById('ballB').style.display = (d.serverTeam === 'B') ? 'block' : 'none';
 
-            // Points
-            const labels = ["0", "15", "30", "40", "AD"];
-            document.getElementById('ptsA').innerText = labels[d.scoreA] || d.scoreA;
-            document.getElementById('ptsB').innerText = labels[d.scoreB] || d.scoreB;
+            // Points (Reprise de ta logique sA/sB)
+            document.getElementById('sA').innerText = labels[d.scoreA] || d.scoreA;
+            document.getElementById('sB').innerText = labels[d.scoreB] || d.scoreB;
 
-            // Sets
+            // Jeux et Sets (Reprise de ta logique gA/stA)
             document.getElementById('set1A').innerText = d.gamesA;
             document.getElementById('set1B').innerText = d.gamesB;
+            // On pourra itérer ici pour set2A/set3A quand ta logique sera prête
 
-            // --- LOGIQUE BANDEAU INFO CORRIGÉE ---
+            // --- LOGIQUE BANDEAU CONTEXTUEL ---
             const banner = document.getElementById('info-banner');
             banner.innerText = "";
             banner.classList.remove('blink');
 
-            const isNoAd = d.rule === 'decisif';
-            const scoreA = d.scoreA; // 0=0, 1=15, 2=30, 3=40, 4=AD
-            const scoreB = d.scoreB;
+            const sA = d.scoreA; 
+            const sB = d.scoreB;
 
-            // 1. BALLE DE MATCH
-            if((d.setsA === d.maxSets - 1 && d.gamesA >= 5 && (scoreA === 3 || scoreA === 4)) || 
-               (d.setsB === d.maxSets - 1 && d.gamesB >= 5 && (scoreB === 3 || scoreB === 4))) {
+            // BALLE DE MATCH
+            if((d.setsA === d.maxSets - 1 && d.gamesA >= 5 && sA >= 3 && sA > sB) || 
+               (d.setsB === d.maxSets - 1 && d.gamesB >= 5 && sB >= 3 && sB > sA)) {
                 banner.innerText = "BALLE DE MATCH"; banner.classList.add('blink');
             } 
-            // 2. BALLE DE SET
-            else if((d.gamesA >= 5 && (scoreA === 3 || scoreA === 4)) || (d.gamesB >= 5 && (scoreB === 3 || scoreB === 4))) {
+            // BALLE DE SET
+            else if((d.gamesA >= 5 && sA >= 3 && sA > sB) || (d.gamesB >= 5 && sB >= 3 && sB > sA)) {
                 banner.innerText = "BALLE DE SET";
             }
-            // 3. BALLE DE BREAK (Corrigé : Pas à 40-40 en mode Avantage)
+            // BALLE DE BREAK (Pas à 40-40 si Avantage)
             else {
-                let isBreakChance = false;
-                if (isNoAd) {
-                    // Au point décisif (40-40), si le receveur gagne, il y a break
-                    if (d.serverTeam === 'A' && scoreB === 3) isBreakChance = true;
-                    if (d.serverTeam === 'B' && scoreA === 3) isBreakChance = true;
+                let isBreak = false;
+                if (d.rule === 'decisif') {
+                    if (d.serverTeam === 'A' && sB === 3) isBreak = true;
+                    if (d.serverTeam === 'B' && sA === 3) isBreak = true;
                 } else {
-                    // Mode Avantage : Break si le receveur a "AD" ou s'il mène à 40 (0-40, 15-40, 30-40)
-                    // Mais PAS à 40-40
-                    if (d.serverTeam === 'A' && (scoreB === 4 || (scoreB === 3 && scoreA < 3))) isBreakChance = true;
-                    if (d.serverTeam === 'B' && (scoreA === 4 || (scoreA === 3 && scoreB < 3))) isBreakChance = true;
+                    if (d.serverTeam === 'A' && (sB === 4 || (sB === 3 && sA < 3))) isBreak = true;
+                    if (d.serverTeam === 'B' && (sA === 4 || (sA === 3 && sB < 3))) isBreak = true;
                 }
 
-                if (isBreakChance) {
-                    banner.innerText = "BALLE DE BREAK";
-                } 
-                // 4. BALLE DE JEU (Si le serveur peut gagner le jeu)
-                else if ((d.serverTeam === 'A' && (scoreA === 3 || scoreA === 4)) || 
-                         (d.serverTeam === 'B' && (scoreB === 3 || scoreB === 4))) {
+                if (isBreak) banner.innerText = "BALLE DE BREAK";
+                // BALLE DE JEU (Si serveur peut conclure)
+                else if ((d.serverTeam === 'A' && sA >= 3 && sA > sB) || 
+                         (d.serverTeam === 'B' && sB >= 3 && sB > sA)) {
                     banner.innerText = "BALLE DE JEU";
                 }
             }
