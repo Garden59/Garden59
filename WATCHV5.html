@@ -72,9 +72,7 @@
         const matchRef = ref(db, 'match/terrain1');
         const historyRef = ref(db, 'history/terrain1');
 
-        document.addEventListener("visibilitychange", () => {
-            if (document.visibilityState === 'visible') { location.reload(); }
-        });
+        document.addEventListener("visibilitychange", () => { if (document.visibilityState === 'visible') { location.reload(); } });
 
         onValue(matchRef, (snap) => {
             const d = snap.val();
@@ -94,8 +92,8 @@
             document.getElementById('gA').innerText = d.gamesA; document.getElementById('gB').innerText = d.gamesB;
             document.getElementById('stA').innerText = d.setsA; document.getElementById('stB').innerText = d.setsB;
             ['bA1', 'bA2', 'bB1', 'bB2'].forEach(id => document.getElementById(id).style.display = 'none');
-            const ballId = 'b' + d.serverTeam + d.serverNum;
-            if(document.getElementById(ballId)) document.getElementById(ballId).style.display = 'block';
+            const ball = 'b' + d.serverTeam + d.serverNum;
+            if(document.getElementById(ball)) document.getElementById(ball).style.display = 'block';
         });
 
         window.addPoint = (team) => {
@@ -112,11 +110,10 @@
                 } else if (d[team] === 3) {
                     if (d[opp] < 3) { winGame(d, team); }
                     else if (d[opp] === 3) { if (isNoAd) winGame(d, team); else d[team] = 4; }
-                    else if (d[opp] === 4) { d[opp] = 3; }
+                    else if (d[opp] === 4) { d[opp] = 3; } // RETOUR À ÉGALITÉ (40-40)
                 } else if (d[team] === 4) {
                     winGame(d, team);
                 }
-
                 set(matchRef, d);
                 if (navigator.vibrate) navigator.vibrate(40); 
             });
@@ -125,14 +122,9 @@
         function winGame(d, team) {
             d.scoreA = 0; d.scoreB = 0;
             if (team === 'scoreA') d.gamesA++; else d.gamesB++;
-            
-            // Changement serveur
             d.serverTeam = (d.serverTeam === 'A') ? 'B' : 'A';
-            
-            // Logique Sets
             if (d.gamesA >= 6 && (d.gamesA - d.gamesB >= 2)) { d.setsA++; d.gamesA = 0; d.gamesB = 0; }
             else if (d.gamesB >= 6 && (d.gamesB - d.gamesA >= 2)) { d.setsB++; d.gamesA = 0; d.gamesB = 0; }
-            
             if (d.setsA >= d.maxSets) d.winner = 'A';
             if (d.setsB >= d.maxSets) d.winner = 'B';
         }
@@ -147,12 +139,7 @@
             });
         };
 
-        window.forceReset = () => {
-            set(matchRef, { status: 'idle', active: false }).then(() => {
-                remove(historyRef);
-                location.reload();
-            });
-        };
+        window.forceReset = () => { set(matchRef, { status: 'idle' }).then(() => location.reload()); };
     </script>
 </body>
 </html>
