@@ -2,8 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ScoreTrak TV - Monochrome Edition</title>
+    <title>ScoreTrak TV - v4 Monochrome</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Roboto:wght@900&display=swap');
 
@@ -13,164 +12,158 @@
             font-family: 'Roboto', sans-serif; 
             margin: 0; 
             height: 100vh; 
-            width: 100vw; 
             overflow: hidden; 
-            display: flex;
-            flex-direction: column;
         }
-
-        /* ÉCRAN IDLE / SETUP AVEC LOGO ANIMÉ */
-        #waiting-screen { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: #000; display: flex; flex-direction: column; 
-            justify-content: center; align-items: center; z-index: 100; 
-        }
-
-        .logo-container {
-            animation: floatLogo 6s ease-in-out infinite;
-            text-align: center;
-        }
-
-        .logo-wait { 
-            font-size: 10vw; font-weight: 900; color: #fff; 
-            font-style: italic; letter-spacing: -3px; 
-            text-shadow: 0 0 30px rgba(255,255,255,0.2);
-        }
-
-        @keyframes floatLogo {
-            0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-30px) scale(1.05); }
-        }
-
-        .qr-container {
-            background: white;
-            padding: 15px;
-            border-radius: 15px;
-            margin-top: 40px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            border: 5px solid #333;
-        }
-        .qr-container img { width: 12vw; height: 12vw; }
-        .qr-text { color: #000; font-size: 1vw; margin-top: 8px; font-weight: bold; text-transform: uppercase; }
-
-        /* ÉCRAN VICTOIRE */
-        #victory-screen { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: #000; display: none; flex-direction: column; 
-            justify-content: center; align-items: center; z-index: 200; text-align: center; 
-        }
-        .victoire-title { font-size: 10vw; color: #fff; font-family: 'Orbitron'; animation: pulse 1s infinite; }
-
-        /* INTERFACE SCOREBOARD MONOCHROME */
-        .scoreboard-wrapper { flex: 1; display: flex; flex-direction: column; width: 100%; visibility: hidden; }
         
-        table { width: 100%; height: 100%; border-collapse: collapse; table-layout: fixed; }
+        /* 1. ÉCRAN VEILLE (IDLE) */
+        #idle-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; z-index: 500; }
         
-        thead th { 
-            background: #000; color: #444; font-size: 1.5vw; 
-            padding: 2vh; text-transform: uppercase; border-bottom: 1px solid #222; 
+        .ad-space { 
+            flex: 1.8; 
+            border-right: 2px solid #1a1a1a; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            background: radial-gradient(circle at center, #111 0%, #000 100%); 
+        }
+        
+        /* Cadre partenaire en blanc au lieu de jaune */
+        .partner-box { 
+            font-size: 5vw; 
+            color: #fff; 
+            font-style: italic; 
+            border: 3px solid #333; 
+            padding: 50px; 
+            border-radius: 40px; 
+            text-align: center; 
+            font-weight: 900;
         }
 
-        .col-names { width: 45%; }
-        .col-sets { width: 10%; }
-        .col-games { width: 15%; }
-        .col-points { width: 25%; background-color: #080808; }
+        .qr-space { flex: 1.2; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #050505; }
+        .qr-frame { background: white; padding: 20px; border-radius: 20px; }
+        .qr-frame img { width: 20vw; height: 20vw; display: block; }
+        
+        /* Texte QR en blanc */
+        .qr-text { 
+            margin-top: 30px; 
+            font-size: 1.6vw; 
+            color: #fff; 
+            text-align: center; 
+            text-transform: uppercase; 
+            letter-spacing: 2px;
+            line-height: 1.2; 
+        }
 
-        td { text-align: center; border-bottom: 1px solid #111; }
+        /* 2. ÉCRAN SETUP (LOGO JAUNE) */
+        #setup-screen { 
+            position: fixed; 
+            top: 0; left: 0; width: 100%; height: 100%; 
+            background: #000; display: none; 
+            flex-direction: column; justify-content: center; 
+            align-items: center; z-index: 550; 
+        }
+        
+        /* Le logo reste JAUNE comme demandé */
+        .logo-setup { 
+            font-size: 12vw; 
+            color: #ccff00; 
+            font-family: 'Orbitron', sans-serif;
+            font-style: italic; 
+            font-weight: 900;
+            animation: pulse 1.5s infinite; 
+        }
+        
+        /* 3. ÉCRAN VICTOIRE (MONOCHROME) */
+        #victory-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 600; }
+        .victory-title { font-size: 10vw; color: #fff; font-family: 'Orbitron'; font-weight: 900; }
 
-        .team-box { display: flex; flex-direction: column; justify-content: center; padding-left: 5vw; text-align: left; }
-        .player-row { display: flex; align-items: center; height: 5vw; }
-        .name { font-size: 4.5vw; font-weight: 900; text-transform: uppercase; color: #fff; }
-
-        /* Balles de service Blanches */
+        /* 4. INTERFACE MATCH (MONOCHROME) */
+        .main-container { height: 100vh; display: flex; flex-direction: column; justify-content: center; visibility: hidden; }
+        
+        .row { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 2vh 6vw; 
+            border-bottom: 1px solid #222; 
+            height: 48vh; 
+        }
+        
+        .name { font-size: 5.5vw; font-weight: 900; text-transform: uppercase; color: #fff; }
+        
+        /* Balle de service blanche pour le contraste */
         .serve-ball { 
-            width: 2vw; height: 2vw; background: #fff; 
-            border-radius: 50%; margin-left: 2vw; 
-            box-shadow: 0 0 20px #fff; display: none; 
+            width: 2.2vw; height: 2.2vw; background: #fff; 
+            border-radius: 50%; margin-left: 25px; 
+            box-shadow: 0 0 20px rgba(255,255,255,0.5); display: none; 
         }
-
-        .score-set { font-family: 'Orbitron', sans-serif; font-size: 7vw; font-weight: 900; color: #fff; }
-        .score-games { font-family: 'Orbitron', sans-serif; font-size: 9vw; font-weight: 900; color: #444; }
-        .score-main { font-family: 'Orbitron', sans-serif; font-size: 15vw; font-weight: 900; color: #fff; }
-
-        /* Suppression des couleurs vert/bleu -> Tout en Blanc */
-        .row-team { border-left: 2vw solid #333; }
-        .active-team { border-left: 2vw solid #fff !important; }
-
-        /* BARRE DE STATUT */
-        .status-bar { height: 10vh; background: #000; display: flex; justify-content: center; align-items: center; border-top: 1px solid #222; }
-        .gold-badge { 
-            color: #fff; font-size: 3vw; font-weight: 900; 
-            text-transform: uppercase; letter-spacing: 12px; 
-            animation: blink 1s infinite; display: none; 
+        
+        .pts { font-family: 'Orbitron', sans-serif; font-size: 22vw; font-weight: 900; min-width: 25vw; text-align: center; color: #fff; }
+        
+        /* Jeux en gris clair au lieu de jaune */
+        .games { 
+            font-family: 'Orbitron', sans-serif; 
+            font-size: 10vw; 
+            color: #fff; 
+            background: #1a1a1a; 
+            padding: 5px 30px; 
+            border-radius: 10px; 
+            margin: 0 40px; 
+            border: 1px solid #333;
         }
+        
+        /* Sets en gris foncé */
+        .sets { font-family: 'Orbitron', sans-serif; font-size: 7vw; color: #555; font-weight: 700; }
 
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-        .confetti { position: absolute; width: 5px; height: 5px; background: #fff; animation: fall 4s linear infinite; z-index: 250; }
-        @keyframes fall { 0% { transform: translateY(-10vh); } 100% { transform: translateY(110vh); } }
+        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.8; } }
     </style>
 </head>
 <body>
 
-    <div id="waiting-screen">
-        <div class="logo-container">
-            <div class="logo-wait">ScoreTrak</div>
-            <div style="color:#333; letter-spacing: 5px;">TV STANDBY</div>
+    <div id="idle-screen">
+        <div class="ad-space">
+            <div class="partner-box">PARTENAIRE<br>DU CLUB</div>
         </div>
-        
-        <div class="qr-container">
-            <img src="https://chart.googleapis.com/chart?cht=qr&chs=300x300&chl=https://scoretrak-123.firebaseapp.com/remote&choe=UTF-8" alt="QR Code">
-            <div class="qr-text">PILOTER LE MATCH</div>
+        <div class="qr-space">
+            <div class="qr-frame"><img id="qr-code-img" src="" alt="QR"></div>
+            <div class="qr-text">Scanner pour<br>gérer le score</div>
         </div>
+    </div>
+
+    <div id="setup-screen">
+        <div class="logo-setup">ScoreTrak</div>
+        <div style="font-size: 1.5vw; color: #555; text-transform: uppercase; letter-spacing: 12px; margin-top: 10px; font-weight: bold;">Configuration...</div>
     </div>
 
     <div id="victory-screen">
-        <div class="victoire-title">VICTOIRE</div>
-        <div id="win-names-tv" class="victoire-names" style="font-size: 4vw; font-weight: 900;"></div>
+        <div class="victory-title">VICTOIRE</div>
+        <div id="win-names-tv" style="font-size: 5vw; color: white; margin-top: 20px; text-transform: uppercase; font-weight: 900;"></div>
     </div>
 
-    <div id="main-ui" class="scoreboard-wrapper">
-        <table>
-            <thead>
-                <tr>
-                    <th class="col-names">Équipes</th>
-                    <th class="col-sets">S</th>
-                    <th class="col-games">G</th>
-                    <th class="col-points">POINTS</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr id="rowA" class="row-team">
-                    <td class="col-names">
-                        <div class="team-box">
-                            <div class="player-row"><span id="nA1" class="name"></span><div id="bA1" class="serve-ball"></div></div>
-                            <div class="player-row"><span id="nA2" class="name"></span><div id="bA2" class="serve-ball"></div></div>
-                        </div>
-                    </td>
-                    <td><span id="stA" class="score-set">0</span></td>
-                    <td><span id="gA" class="score-games">0</span></td>
-                    <td class="col-points"><span id="sA" class="score-main">0</span></td>
-                </tr>
-                <tr id="rowB" class="row-team">
-                    <td class="col-names">
-                        <div class="team-box">
-                            <div class="player-row"><span id="nB1" class="name"></span><div id="bB1" class="serve-ball"></div></div>
-                            <div class="player-row"><span id="nB2" class="name"></span><div id="bB2" class="serve-ball"></div></div>
-                        </div>
-                    </td>
-                    <td><span id="stB" class="score-set">0</span></td>
-                    <td><span id="gB" class="score-games">0</span></td>
-                    <td class="col-points"><span id="sB" class="score-main">0</span></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <div class="status-bar">
-        <div id="status-badge" class="gold-badge">BALLE DE MATCH</div>
+    <div id="main-ui" class="main-container">
+        <div class="row">
+            <div style="flex:4;">
+                <div style="display:flex; align-items:center;"><span id="nA1" class="name"></span><div id="bA1" class="serve-ball"></div></div>
+                <div style="display:flex; align-items:center; margin-top:10px;"><span id="nA2" class="name"></span><div id="bA2" class="serve-ball"></div></div>
+            </div>
+            <div style="display:flex; flex:6; justify-content:flex-end; align-items:center;">
+                <div id="sA" class="pts">0</div>
+                <div id="gA" class="games">0</div>
+                <div id="stA" class="sets">0</div>
+            </div>
+        </div>
+        <div class="row" style="border: none;">
+            <div style="flex:4;">
+                <div style="display:flex; align-items:center;"><span id="nB1" class="name"></span><div id="bB1" class="serve-ball"></div></div>
+                <div style="display:flex; align-items:center; margin-top:10px;"><span id="nB2" class="name"></span><div id="bB2" class="serve-ball"></div></div>
+            </div>
+            <div style="display:flex; flex:6; justify-content:flex-end; align-items:center;">
+                <div id="sB" class="pts">0</div>
+                <div id="gB" class="games">0</div>
+                <div id="stB" class="sets">0</div>
+            </div>
+        </div>
     </div>
 
     <script type="module">
@@ -183,69 +176,58 @@
             databaseURL: "https://scoretrak-123-default-rtdb.europe-west1.firebasedatabase.app", 
             projectId: "scoretrak-123" 
         };
-        
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+
+        // MISE A JOUR DU LIEN QR CODE
+        const urlSmartphone = "https://dashing-youtiao-01e5cd.netlify.app/smartphonev4";
+        document.getElementById('qr-code-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(urlSmartphone)}&color=000000`;
+
         const labels = ["0", "15", "30", "40", "AD"];
 
         onValue(ref(db, 'match/terrain1'), (snap) => {
             const d = snap.val();
-            const wait = document.getElementById('waiting-screen');
+            const idle = document.getElementById('idle-screen');
+            const setup = document.getElementById('setup-screen');
             const main = document.getElementById('main-ui');
             const victory = document.getElementById('victory-screen');
-            const badge = document.getElementById('status-badge');
 
-            if (!d || !d.active) {
-                wait.style.display = 'flex';
-                main.style.visibility = 'hidden';
-                victory.style.display = 'none';
-                badge.style.display = 'none';
-                return;
+            // GESTION DES ÉCRANS
+            if (!d || d.status === 'idle') {
+                idle.style.display = 'flex'; setup.style.display = 'none'; main.style.visibility = 'hidden'; victory.style.display = 'none'; return;
+            }
+            if (d.status === 'setup') {
+                idle.style.display = 'none'; setup.style.display = 'flex'; main.style.visibility = 'hidden'; victory.style.display = 'none'; return;
             }
 
-            wait.style.display = 'none';
-            main.style.visibility = 'visible';
-
-            // Gestion Victoire
+            idle.style.display = 'none'; setup.style.display = 'none'; main.style.visibility = 'visible';
+            
+            // VICTOIRE
             if (d.winner) {
                 victory.style.display = 'flex';
                 document.getElementById('win-names-tv').innerText = d.winner === 'A' ? `${d.pA1} & ${d.pA2}` : `${d.pB1} & ${d.pB2}`;
-            } else {
-                victory.style.display = 'none';
-            }
+            } else { victory.style.display = 'none'; }
 
-            // Noms & Jeux
-            document.getElementById('nA1').innerText = d.pA1; document.getElementById('nA2').innerText = d.pA2;
-            document.getElementById('nB1').innerText = d.pB1; document.getElementById('nB2').innerText = d.pB2;
-            document.getElementById('gA').innerText = d.gamesA || 0;
-            document.getElementById('gB').innerText = d.gamesB || 0;
-            document.getElementById('stA').innerText = d.setsA;
-            document.getElementById('stB').innerText = d.setsB;
+            // DONNÉES MATCH
+            document.getElementById('nA1').innerText = d.pA1 || ""; 
+            document.getElementById('nA2').innerText = d.pA2 || "";
+            document.getElementById('nB1').innerText = d.pB1 || ""; 
+            document.getElementById('nB2').innerText = d.pB2 || "";
 
-            // Points
             const isTB = (d.gamesA === 6 && d.gamesB === 6);
             document.getElementById('sA').innerText = isTB ? d.scoreA : (labels[d.scoreA] || "0");
             document.getElementById('sB').innerText = isTB ? d.scoreB : (labels[d.scoreB] || "0");
-
-            // Statut Badge
-            if (d.scoreA === 4 || d.scoreB === 4) {
-                badge.innerText = "AVANTAGE"; badge.style.display = "block";
-            } else if ((d.scoreA === 3 && d.scoreB < 3) || (d.scoreB === 3 && d.scoreA < 3)) {
-                badge.innerText = "BALLE DE JEU"; badge.style.display = "block";
-            } else {
-                badge.style.display = "none";
-            }
-
-            // Service & Highlight équipe active
-            ['bA1', 'bA2', 'bB1', 'bB2'].forEach(id => document.getElementById(id).style.display = 'none');
-            document.getElementById('rowA').classList.remove('active-team');
-            document.getElementById('rowB').classList.remove('active-team');
-
-            const currentBall = 'b' + d.serverTeam + d.serverNum;
-            if(document.getElementById(currentBall)) document.getElementById(currentBall).style.display = 'block';
             
-            // On allume la bordure de l'équipe qui sert
-            if(d.serverTeam) document.getElementById('row' + d.serverTeam).classList.add('active-team');
+            document.getElementById('gA').innerText = d.gamesA || 0; 
+            document.getElementById('gB').innerText = d.gamesB || 0;
+            
+            document.getElementById('stA').innerText = d.setsA || 0; 
+            document.getElementById('stB').innerText = d.setsB || 0;
+
+            // SERVICE
+            ['bA1', 'bA2', 'bB1', 'bB2'].forEach(id => document.getElementById(id).style.display = 'none');
+            const ball = 'b' + d.serverTeam + d.serverNum;
+            if(document.getElementById(ball)) document.getElementById(ball).style.display = 'block';
         });
     </script>
 </body>
