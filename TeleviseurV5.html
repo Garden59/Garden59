@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ScoreTrak TV - Live V5 Design (Games Updated)</title>
+    <title>ScoreTrak TV - Monochrome Edition</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Roboto:wght@900&display=swap');
 
@@ -18,97 +18,118 @@
             display: flex;
             flex-direction: column;
         }
-         /* 1. ÉCRAN VEILLE (IDLE) */
-        #idle-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; z-index: 500; }
-        .ad-space { flex: 1.8; border-right: 2px solid #1a1a1a; display: flex; flex-direction: column; justify-content: center; align-items: center; background: radial-gradient(circle at center, #111 0%, #000 100%); }
-        .qr-space { flex: 1.2; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #050505; }
-        .qr-frame { background: white; padding: 20px; border-radius: 20px; }
-        .qr-frame img { width: 22vw; height: 22vw; display: block; }
-        .qr-text { margin-top: 30px; font-size: 1.8vw; color: #ccff00; text-align: center; text-transform: uppercase; line-height: 1.2; }
 
-        /* Écran d'attente */
+        /* ÉCRAN IDLE / SETUP AVEC LOGO ANIMÉ */
         #waiting-screen { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: #000; display: flex; flex-direction: column; 
             justify-content: center; align-items: center; z-index: 100; 
         }
-        .logo-wait { font-size: 12vw; font-weight: 900; color: #ccff00; font-style: italic; letter-spacing: -3px; }
-        .sub-wait { font-size: 2vw; color: #444; text-transform: uppercase; letter-spacing: 10px; margin-top: -2vw; }
 
-        /* Écran de Victoire */
+        .logo-container {
+            animation: floatLogo 6s ease-in-out infinite;
+            text-align: center;
+        }
+
+        .logo-wait { 
+            font-size: 10vw; font-weight: 900; color: #fff; 
+            font-style: italic; letter-spacing: -3px; 
+            text-shadow: 0 0 30px rgba(255,255,255,0.2);
+        }
+
+        @keyframes floatLogo {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-30px) scale(1.05); }
+        }
+
+        .qr-container {
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            margin-top: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 5px solid #333;
+        }
+        .qr-container img { width: 12vw; height: 12vw; }
+        .qr-text { color: #000; font-size: 1vw; margin-top: 8px; font-weight: bold; text-transform: uppercase; }
+
+        /* ÉCRAN VICTOIRE */
         #victory-screen { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: #000; display: none; flex-direction: column; 
             justify-content: center; align-items: center; z-index: 200; text-align: center; 
         }
-        .victoire-title { font-size: 10vw; color: #ccff00; text-shadow: 0 0 50px rgba(204, 255, 0, 0.5); animation: pulse 1s infinite; font-family: 'Orbitron'; }
-        .victoire-names { font-size: 5vw; color: white; margin-top: 20px; }
+        .victoire-title { font-size: 10vw; color: #fff; font-family: 'Orbitron'; animation: pulse 1s infinite; }
 
-        /* Interface Scoreboard */
+        /* INTERFACE SCOREBOARD MONOCHROME */
         .scoreboard-wrapper { flex: 1; display: flex; flex-direction: column; width: 100%; visibility: hidden; }
         
         table { width: 100%; height: 100%; border-collapse: collapse; table-layout: fixed; }
         
         thead th { 
-            background: #111; color: #555; font-size: 1.8vw; 
-            padding: 1.5vh; text-transform: uppercase; border-bottom: 2px solid #222; 
+            background: #000; color: #444; font-size: 1.5vw; 
+            padding: 2vh; text-transform: uppercase; border-bottom: 1px solid #222; 
         }
 
-        /* Ajustement des largeurs de colonnes */
-        .col-names { width: 40%; }
+        .col-names { width: 45%; }
         .col-sets { width: 10%; }
         .col-games { width: 15%; }
-        .col-points { width: 25%; background-color: #050505; }
+        .col-points { width: 25%; background-color: #080808; }
 
         td { text-align: center; border-bottom: 1px solid #111; }
 
-        .team-box { display: flex; flex-direction: column; justify-content: center; padding-left: 4vw; text-align: left; }
+        .team-box { display: flex; flex-direction: column; justify-content: center; padding-left: 5vw; text-align: left; }
         .player-row { display: flex; align-items: center; height: 5vw; }
-        .name { font-size: 4.5vw; font-weight: 900; text-transform: uppercase; line-height: 1; }
+        .name { font-size: 4.5vw; font-weight: 900; text-transform: uppercase; color: #fff; }
 
-        /* Indicateur de service */
+        /* Balles de service Blanches */
         .serve-ball { 
-            width: 2.2vw; height: 2.2vw; background: #ccff00; 
-            border-radius: 50%; margin-left: 1.5vw; 
-            box-shadow: 0 0 25px #ccff00; display: none; 
+            width: 2vw; height: 2vw; background: #fff; 
+            border-radius: 50%; margin-left: 2vw; 
+            box-shadow: 0 0 20px #fff; display: none; 
         }
 
-        /* Styles des scores */
-        .score-set { font-family: 'Orbitron', sans-serif; font-size: 8vw; font-weight: 900; color: #fff; }
-        .score-games { font-family: 'Orbitron', sans-serif; font-size: 10vw; font-weight: 900; color: #888; }
-        .score-main { font-family: 'Orbitron', sans-serif; font-size: 16vw; font-weight: 900; }
+        .score-set { font-family: 'Orbitron', sans-serif; font-size: 7vw; font-weight: 900; color: #fff; }
+        .score-games { font-family: 'Orbitron', sans-serif; font-size: 9vw; font-weight: 900; color: #444; }
+        .score-main { font-family: 'Orbitron', sans-serif; font-size: 15vw; font-weight: 900; color: #fff; }
 
-        .row-green { border-left: 3vw solid #4CAF50; }
-        .row-green .name, .row-green .score-main { color: #4CAF50; }
+        /* Suppression des couleurs vert/bleu -> Tout en Blanc */
+        .row-team { border-left: 2vw solid #333; }
+        .active-team { border-left: 2vw solid #fff !important; }
 
-        .row-blue { border-left: 3vw solid #2196F3; }
-        .row-blue .name, .row-blue .score-main { color: #2196F3; }
-
-        /* Barre de statut */
-        .status-bar { height: 12vh; background: #000; display: flex; justify-content: center; align-items: center; border-top: 2px solid #222; }
+        /* BARRE DE STATUT */
+        .status-bar { height: 10vh; background: #000; display: flex; justify-content: center; align-items: center; border-top: 1px solid #222; }
         .gold-badge { 
-            color: #FFD600; font-size: 3.5vw; font-weight: 900; 
-            text-transform: uppercase; letter-spacing: 8px; 
-            text-shadow: 0 0 20px rgba(255, 214, 0, 0.6); 
-            animation: blink-gold 1s infinite; display: none; 
+            color: #fff; font-size: 3vw; font-weight: 900; 
+            text-transform: uppercase; letter-spacing: 12px; 
+            animation: blink 1s infinite; display: none; 
         }
 
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-        @keyframes blink-gold { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
-        .confetti { position: absolute; width: 15px; height: 15px; animation: fall 4s linear infinite; z-index: 250; }
-        @keyframes fall { 0% { transform: translateY(-10vh) rotate(0deg); } 100% { transform: translateY(110vh) rotate(720deg); } }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        .confetti { position: absolute; width: 5px; height: 5px; background: #fff; animation: fall 4s linear infinite; z-index: 250; }
+        @keyframes fall { 0% { transform: translateY(-10vh); } 100% { transform: translateY(110vh); } }
     </style>
 </head>
 <body>
 
     <div id="waiting-screen">
-        <div class="logo-wait">ScoreTrak</div>
-        <div class="sub-wait">En attente des joueurs</div>
+        <div class="logo-container">
+            <div class="logo-wait">ScoreTrak</div>
+            <div style="color:#333; letter-spacing: 5px;">TV STANDBY</div>
+        </div>
+        
+        <div class="qr-container">
+            <img src="https://chart.googleapis.com/chart?cht=qr&chs=300x300&chl=https://scoretrak-123.firebaseapp.com/remote&choe=UTF-8" alt="QR Code">
+            <div class="qr-text">PILOTER LE MATCH</div>
+        </div>
     </div>
 
     <div id="victory-screen">
         <div class="victoire-title">VICTOIRE</div>
-        <div id="win-names-tv" class="victoire-names"></div>
+        <div id="win-names-tv" class="victoire-names" style="font-size: 4vw; font-weight: 900;"></div>
     </div>
 
     <div id="main-ui" class="scoreboard-wrapper">
@@ -116,13 +137,13 @@
             <thead>
                 <tr>
                     <th class="col-names">Équipes</th>
-                    <th class="col-sets">Sets</th>
-                    <th class="col-games">Jeux</th>
-                    <th class="col-points">Points</th>
+                    <th class="col-sets">S</th>
+                    <th class="col-games">G</th>
+                    <th class="col-points">POINTS</th>
                 </tr>
             </thead>
             <tbody>
-                <tr class="row-green">
+                <tr id="rowA" class="row-team">
                     <td class="col-names">
                         <div class="team-box">
                             <div class="player-row"><span id="nA1" class="name"></span><div id="bA1" class="serve-ball"></div></div>
@@ -133,7 +154,7 @@
                     <td><span id="gA" class="score-games">0</span></td>
                     <td class="col-points"><span id="sA" class="score-main">0</span></td>
                 </tr>
-                <tr class="row-blue">
+                <tr id="rowB" class="row-team">
                     <td class="col-names">
                         <div class="team-box">
                             <div class="player-row"><span id="nB1" class="name"></span><div id="bB1" class="serve-ball"></div></div>
@@ -165,7 +186,6 @@
         
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-
         const labels = ["0", "15", "30", "40", "AD"];
 
         onValue(ref(db, 'match/terrain1'), (snap) => {
@@ -180,76 +200,53 @@
                 main.style.visibility = 'hidden';
                 victory.style.display = 'none';
                 badge.style.display = 'none';
-                stopConfetti();
                 return;
             }
 
             wait.style.display = 'none';
             main.style.visibility = 'visible';
 
-            // Gestion de la victoire
+            // Gestion Victoire
             if (d.winner) {
                 victory.style.display = 'flex';
                 document.getElementById('win-names-tv').innerText = d.winner === 'A' ? `${d.pA1} & ${d.pA2}` : `${d.pB1} & ${d.pB2}`;
-                startConfetti();
             } else {
                 victory.style.display = 'none';
-                stopConfetti();
             }
 
-            // Mise à jour noms
-            document.getElementById('nA1').innerText = d.pA1; 
-            document.getElementById('nA2').innerText = d.pA2;
-            document.getElementById('nB1').innerText = d.pB1; 
-            document.getElementById('nB2').innerText = d.pB2;
-            
-            // Mise à jour des Jeux (Nouveau)
+            // Noms & Jeux
+            document.getElementById('nA1').innerText = d.pA1; document.getElementById('nA2').innerText = d.pA2;
+            document.getElementById('nB1').innerText = d.pB1; document.getElementById('nB2').innerText = d.pB2;
             document.getElementById('gA').innerText = d.gamesA || 0;
             document.getElementById('gB').innerText = d.gamesB || 0;
+            document.getElementById('stA').innerText = d.setsA;
+            document.getElementById('stB').innerText = d.setsB;
 
-            // Mise à jour Scores / Points (Gestion Tie-break incluse)
+            // Points
             const isTB = (d.gamesA === 6 && d.gamesB === 6);
             document.getElementById('sA').innerText = isTB ? d.scoreA : (labels[d.scoreA] || "0");
             document.getElementById('sB').innerText = isTB ? d.scoreB : (labels[d.scoreB] || "0");
-            
-            // Affichage des Sets
-            document.getElementById('stA').innerText = d.setsA; 
-            document.getElementById('stB').innerText = d.setsB;
 
-            // Gestion du badge d'alerte
+            // Statut Badge
             if (d.scoreA === 4 || d.scoreB === 4) {
-                badge.innerText = "AVANTAGE";
-                badge.style.display = "block";
+                badge.innerText = "AVANTAGE"; badge.style.display = "block";
             } else if ((d.scoreA === 3 && d.scoreB < 3) || (d.scoreB === 3 && d.scoreA < 3)) {
-                badge.innerText = "BALLE DE JEU";
-                badge.style.display = "block";
+                badge.innerText = "BALLE DE JEU"; badge.style.display = "block";
             } else {
                 badge.style.display = "none";
             }
 
-            // Balles de service
+            // Service & Highlight équipe active
             ['bA1', 'bA2', 'bB1', 'bB2'].forEach(id => document.getElementById(id).style.display = 'none');
-            const current = 'b' + d.serverTeam + d.serverNum;
-            if(document.getElementById(current)) document.getElementById(current).style.display = 'block';
+            document.getElementById('rowA').classList.remove('active-team');
+            document.getElementById('rowB').classList.remove('active-team');
+
+            const currentBall = 'b' + d.serverTeam + d.serverNum;
+            if(document.getElementById(currentBall)) document.getElementById(currentBall).style.display = 'block';
+            
+            // On allume la bordure de l'équipe qui sert
+            if(d.serverTeam) document.getElementById('row' + d.serverTeam).classList.add('active-team');
         });
-
-        function startConfetti() {
-            if (document.querySelectorAll('.confetti').length > 0) return;
-            for(let i=0; i<100; i++) {
-                let c = document.createElement('div');
-                c.className = 'confetti';
-                c.style.left = Math.random()*100+'vw';
-                c.style.backgroundColor = ['#ccff00','#fff','#4CAF50','#2196F3','#FFD700'][Math.floor(Math.random()*5)];
-                c.style.animationDuration = (Math.random()*3 + 2)+'s';
-                c.style.animationDelay = (Math.random()*2)+'s';
-                document.getElementById('victory-screen').appendChild(c);
-            }
-        }
-
-        function stopConfetti() {
-            const confettis = document.querySelectorAll('.confetti');
-            confettis.forEach(c => c.remove());
-        }
     </script>
 </body>
 </html>
