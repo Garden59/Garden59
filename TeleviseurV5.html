@@ -2,144 +2,152 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>ScoreTrak TV - Pro Live Edition</title>
+    <title>ScoreTrak TV - v4 Monochrome</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Roboto:wght@400;700;900&display=swap');
 
-        :root {
-            --neon-green: #30ff91;
-            --neon-blue: #2e7dff;
-            --bg-dark: #0a0a0a;
-            --panel-dark: #111111;
-            --text-gray: #888;
-        }
-
-        body { 
-            background: #000; 
-            color: white; 
-            font-family: 'Roboto', sans-serif; 
-            margin: 0; 
-            height: 100vh; 
+        body {
+            background: #000;
+            color: white;
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            height: 100vh;
             overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
-
-        /* 1. ÉCRAN VEILLE (LOGO JAUNE) */
-        #idle-screen, #setup-screen { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: #000; z-index: 1000; display: flex; flex-direction: column; 
-            justify-content: center; align-items: center; 
-        }
-
-        .logo-setup { 
-            font-size: 10vw; color: #ccff00; font-family: 'Orbitron'; 
-            font-style: italic; font-weight: 900; animation: pulse 1.5s infinite; 
-        }
-
-        /* 2. INTERFACE MATCH PRO */
-        .scoreboard-container {
-            width: 95vw;
-            height: 85vh;
-            background: var(--bg-dark);
-            border: 2px solid #222;
-            border-radius: 20px;
+        
+        /* 1. ÉCRAN VEILLE (IDLE) - INCHANGÉ */
+        #idle-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; z-index: 500; }
+        .ad-space {
+            flex: 1.8;
+            border-right: 2px solid #1a1a1a;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 0 50px rgba(0,0,0,1);
-            visibility: hidden;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at center, #111 0%, #000 100%);
+        }
+        .partner-box {
+            font-size: 5vw;
+            color: #ccff00;
+            font-style: italic;
+            border: 3px solid #333;
+            padding: 50px;
+            border-radius: 40px;
+            text-align: center;
+            font-weight: 900;
+        }
+        .qr-space { flex: 1.2; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #050505; }
+        .qr-frame { background: white; padding: 20px; border-radius: 20px; }
+        .qr-frame img { width: 20vw; height: 20vw; display: block; }
+        .qr-text {
+            margin-top: 30px;
+            font-size: 1.6vw;
+            color: #ccff00;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            line-height: 1.2;
         }
 
-        /* Header */
-        .sb-header {
+        /* 2. ÉCRAN SETUP - INCHANGÉ */
+        #setup-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; display: none;
+            flex-direction: column; justify-content: center;
+            align-items: center; z-index: 550;
+        }
+        .logo-setup {
+            font-size: 12vw;
+            color: #ccff00;
+            font-family: 'Orbitron', sans-serif;
+            font-style: italic;
+            font-weight: 900;
+            animation: pulse 1.5s infinite;
+        }
+        
+        /* 3. ÉCRAN VICTOIRE - INCHANGÉ */
+        #victory-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 600; }
+        .victory-title { font-size: 10vw; color: #fff; font-family: 'Orbitron'; font-weight: 900; }
+
+        /* 4. NOUVELLE INTERFACE MATCH (DESIGN IMAGE) */
+        .main-container { 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            visibility: hidden; 
+            background: #000;
+            padding: 2vh 2vw;
+            box-sizing: border-box;
+        }
+
+        .header-row {
             display: grid;
             grid-template-columns: 45% 10% 10% 10% 25%;
-            background: #181818;
-            padding: 15px 0;
-            border-bottom: 2px solid #000;
-            color: var(--text-gray);
+            padding: 1.5vh 0;
+            color: #444;
             font-weight: 900;
             font-size: 1.2vw;
             text-transform: uppercase;
             text-align: center;
+            border-bottom: 2px solid #111;
         }
 
-        /* Lignes Équipes */
-        .sb-row {
+        .team-row {
             display: grid;
             grid-template-columns: 45% 10% 10% 10% 25%;
-            height: 50%;
-            border-bottom: 1px solid #222;
-        }
-
-        .team-info {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding-left: 40px;
+            height: 40vh;
+            border-bottom: 1px solid #111;
             position: relative;
         }
 
-        /* Barre latérale de couleur */
-        .side-bar {
+        .team-identity {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding-left: 4vw;
+            position: relative;
+        }
+
+        /* Barre de couleur latérale */
+        .side-indicator {
             position: absolute;
-            left: 0; top: 15%; height: 70%; width: 8px; border-radius: 0 4px 4px 0;
-        }
-        .green-bar { background: var(--neon-green); box-shadow: 0 0 15px var(--neon-green); }
-        .blue-bar { background: var(--neon-blue); box-shadow: 0 0 15px var(--neon-blue); }
-
-        .team-name { font-size: 4vw; font-weight: 900; text-transform: uppercase; margin-bottom: -5px; }
-        .players { font-size: 1.2vw; color: var(--text-gray); font-weight: 400; }
-
-        /* Colonnes Scores */
-        .set-box {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Orbitron';
-            font-size: 6vw;
-            font-weight: 700;
-            border-right: 1px solid #1a1a1a;
+            left: 0; top: 15%; height: 70%; width: 0.8vw; border-radius: 0 5px 5px 0;
         }
 
-        .points-box {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #080808;
-            font-family: 'Orbitron';
-            font-size: 14vw;
-            font-weight: 900;
+        .name-container { font-size: 4.5vw; font-weight: 900; text-transform: uppercase; line-height: 1; margin-bottom: 5px;}
+        .sub-names { font-size: 1.1vw; color: #555; font-weight: 400; text-transform: uppercase; }
+
+        .set-cell {
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Orbitron'; font-size: 6vw; font-weight: 700; color: #fff;
+            border-right: 1px solid #0a0a0a;
         }
 
-        /* Couleurs Néon Spécifiques */
-        .team-green .team-name { color: var(--neon-green); }
-        .team-green .points-box { color: var(--neon-green); text-shadow: 0 0 30px rgba(48, 255, 145, 0.4); }
-        
-        .team-blue .team-name { color: var(--neon-blue); }
-        .team-blue .points-box { color: var(--neon-blue); text-shadow: 0 0 30px rgba(46, 125, 255, 0.4); }
+        .pts-cell {
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Orbitron'; font-size: 14vw; font-weight: 900;
+            background: rgba(255,255,255,0.02);
+        }
 
-        /* Balle de Service */
+        /* Couleurs Thématiques */
+        .row-green .name-container { color: #30ff91; }
+        .row-green .side-indicator { background: #30ff91; box-shadow: 0 0 15px #30ff91; }
+        .row-green .pts-cell { color: #30ff91; text-shadow: 0 0 30px rgba(48, 255, 145, 0.4); }
+
+        .row-blue .name-container { color: #2e7dff; }
+        .row-blue .side-indicator { background: #2e7dff; box-shadow: 0 0 15px #2e7dff; }
+        .row-blue .pts-cell { color: #2e7dff; text-shadow: 0 0 30px rgba(46, 125, 255, 0.4); }
+
         .serve-ball {
-            width: 1.5vw; height: 1.5vw; background: #ccff00;
-            border-radius: 50%; position: absolute; left: 15px;
+            width: 1.8vw; height: 1.8vw; background: #ccff00;
+            border-radius: 50%; position: absolute; left: 1.5vw;
             box-shadow: 0 0 15px #ccff00; display: none;
         }
 
-        /* Footer */
-        .sb-footer {
-            height: 60px;
-            background: #000;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 30px;
-            color: #444;
-            font-size: 0.9vw;
-            text-transform: uppercase;
-            font-weight: 700;
+        .footer-match {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 2vh 2vw; color: #333; font-size: 0.9vw; font-weight: 900; text-transform: uppercase;
         }
 
         @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.8; } }
@@ -148,14 +156,27 @@
 <body>
 
     <div id="idle-screen">
-        <div class="logo-setup">ScoreTrak</div>
-        <div style="margin-top:20px; background:white; padding:15px; border-radius:15px;">
-            <img id="qr-code-img" style="width:15vw;" src="" alt="QR">
+        <div class="ad-space">
+            <div class="partner-box">PARTENAIRE<br>DU CLUB</div>
+        </div>
+        <div class="qr-space">
+            <div class="qr-frame"><img id="qr-code-img" src="" alt="QR"></div>
+            <div class="qr-text">Scanner pour<br>gérer le score</div>
         </div>
     </div>
 
-    <div id="main-ui" class="scoreboard-container">
-        <div class="sb-header">
+    <div id="setup-screen">
+        <div class="logo-setup">ScoreTrak</div>
+        <div style="font-size: 1.5vw; color: #555; text-transform: uppercase; letter-spacing: 12px; margin-top: 10px; font-weight: bold;">Configuration...</div>
+    </div>
+
+    <div id="victory-screen">
+        <div class="victory-title">VICTOIRE</div>
+        <div id="win-names-tv" style="font-size: 5vw; color: white; margin-top: 20px; text-transform: uppercase; font-weight: 900;"></div>
+    </div>
+
+    <div id="main-ui" class="main-container">
+        <div class="header-row">
             <div>Équipes</div>
             <div>S1</div>
             <div>S2</div>
@@ -163,34 +184,37 @@
             <div>Jeu</div>
         </div>
 
-        <div class="sb-row team-green">
-            <div class="team-info">
-                <div id="bA" class="serve-ball"></div> <div class="side-bar green-bar"></div>
-                <div id="teamNameA" class="team-name">Équipe Verte</div>
-                <div id="playersA" class="players">P. NOM / P. NOM</div>
+        <div class="team-row row-green">
+            <div class="team-identity">
+                <div class="side-indicator"></div>
+                <div id="bA1" class="serve-ball"></div> <div id="bA2" class="serve-ball" style="margin-top:20px;"></div>
+                <div class="name-container">Équipe Verte</div>
+                <div id="players-names-A" class="sub-names"><span id="nA1"></span> / <span id="nA2"></span></div>
             </div>
-            <div class="set-box" id="s1A">-</div>
-            <div class="set-box" id="s2A">-</div>
-            <div class="set-box" id="s3A">-</div>
-            <div class="points-box" id="sA">0</div>
+            <div id="st1A" class="set-cell">-</div>
+            <div id="st2A" class="set-cell">-</div>
+            <div id="st3A" class="set-cell">-</div>
+            <div id="sA" class="pts-cell">0</div>
         </div>
 
-        <div class="sb-row team-blue">
-            <div class="team-info">
-                <div id="bB" class="serve-ball"></div> <div class="side-bar blue-bar"></div>
-                <div id="teamNameB" class="team-name">Équipe Bleue</div>
-                <div id="playersB" class="players">P. NOM / P. NOM</div>
+        <div class="team-row row-blue" style="border:none;">
+            <div class="team-identity">
+                <div class="side-indicator"></div>
+                <div id="bB1" class="serve-ball"></div>
+                <div id="bB2" class="serve-ball" style="margin-top:20px;"></div>
+                <div class="name-container">Équipe Bleue</div>
+                <div id="players-names-B" class="sub-names"><span id="nB1"></span> / <span id="nB2"></span></div>
             </div>
-            <div class="set-box" id="s1B">-</div>
-            <div class="set-box" id="s2B">-</div>
-            <div class="set-box" id="s3B">-</div>
-            <div class="points-box" id="sB">0</div>
+            <div id="st1B" class="set-cell">-</div>
+            <div id="st2B" class="set-cell">-</div>
+            <div id="st3B" class="set-cell">-</div>
+            <div id="sB" class="pts-cell">0</div>
         </div>
 
-        <div class="sb-footer">
-            <div>Court n°1 - Live ScoreTrak</div>
-            <div style="color: #664400">Point d'or (No-Ad)</div>
-            <div id="version-label">Connecté : V1.2</div>
+        <div class="footer-match">
+            <div>Court N°1 - Live ScoreTrak</div>
+            <div style="color:#540;">Point d'or (No-Ad)</div>
+            <div>Connecté : Watch V1.2</div>
         </div>
     </div>
 
@@ -198,50 +222,61 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        const firebaseConfig = { 
-            apiKey: "AIzaSyCjlHL7GEXFvnrNzZAIEZyl-WCqUI3txiM", 
-            authDomain: "scoretrak-123.firebaseapp.com", 
-            databaseURL: "https://scoretrak-123-default-rtdb.europe-west1.firebasedatabase.app", 
-            projectId: "scoretrak-123" 
+        const firebaseConfig = {
+            apiKey: "AIzaSyCjlHL7GEXFvnrNzZAIEZyl-WCqUI3txiM",
+            authDomain: "scoretrak-123.firebaseapp.com",
+            databaseURL: "https://scoretrak-123-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "scoretrak-123"
         };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
         const urlSmartphone = "https://dashing-youtiao-01e5cd.netlify.app/smartphonev4";
-        document.getElementById('qr-code-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(urlSmartphone)}`;
+        document.getElementById('qr-code-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(urlSmartphone)}&color=000000`;
 
         const labels = ["0", "15", "30", "40", "AD"];
 
         onValue(ref(db, 'match/terrain1'), (snap) => {
             const d = snap.val();
             const idle = document.getElementById('idle-screen');
+            const setup = document.getElementById('setup-screen');
             const main = document.getElementById('main-ui');
+            const victory = document.getElementById('victory-screen');
 
             if (!d || d.status === 'idle') {
-                idle.style.display = 'flex'; main.style.visibility = 'hidden'; return;
+                idle.style.display = 'flex'; setup.style.display = 'none'; main.style.visibility = 'hidden'; victory.style.display = 'none'; return;
+            }
+            if (d.status === 'setup') {
+                idle.style.display = 'none'; setup.style.display = 'flex'; main.style.visibility = 'hidden'; victory.style.display = 'none'; return;
             }
 
-            idle.style.display = 'none'; main.style.visibility = 'visible';
+            idle.style.display = 'none'; setup.style.display = 'none'; main.style.visibility = 'visible';
             
-            // Noms et Joueurs
-            document.getElementById('playersA').innerText = `${d.pA1} / ${d.pA2}`;
-            document.getElementById('playersB').innerText = `${d.pB1} / ${d.pB2}`;
+            if (d.winner) {
+                victory.style.display = 'flex';
+                document.getElementById('win-names-tv').innerText = d.winner === 'A' ? `${d.pA1} & ${d.pA2}` : `${d.pB1} & ${d.pB2}`;
+            } else { victory.style.display = 'none'; }
 
-            // Points (Jeu actuel)
+            document.getElementById('nA1').innerText = d.pA1 || "";
+            document.getElementById('nA2').innerText = d.pA2 || "";
+            document.getElementById('nB1').innerText = d.pB1 || "";
+            document.getElementById('nB2').innerText = d.pB2 || "";
+
             const isTB = (d.gamesA === 6 && d.gamesB === 6);
             document.getElementById('sA').innerText = isTB ? d.scoreA : (labels[d.scoreA] || "0");
             document.getElementById('sB').innerText = isTB ? d.scoreB : (labels[d.scoreB] || "0");
             
-            // Jeux (On utilise gamesA/B pour le set en cours, ici simulé sur S1/S2/S3 selon les sets gagnés)
-            // Note : Pour un affichage parfait S1/S2/S3, il faudrait que ton Firebase envoie l'historique des sets.
-            // Ici on affiche le set en cours dans la colonne correspondante.
-            const currentSet = (d.setsA + d.setsB) + 1;
-            document.getElementById(`s${currentSet}A`).innerText = d.gamesA;
-            document.getElementById(`s${currentSet}B`).innerText = d.gamesB;
+            // Logique d'affichage des Sets S1/S2/S3 basée sur gamesA/B (Set en cours)
+            const setEnCours = (d.setsA + d.setsB) + 1;
+            // On réinitialise l'affichage pour S1/S2/S3
+            for(let i=1; i<=3; i++) {
+                document.getElementById(`st${i}A`).innerText = (i < setEnCours) ? "6" : (i === setEnCours ? d.gamesA : "-");
+                document.getElementById(`st${i}B`).innerText = (i < setEnCours) ? "4" : (i === setEnCours ? d.gamesB : "-");
+            }
 
-            // Service
-            document.getElementById('bA').style.display = d.serverTeam === 'A' ? 'block' : 'none';
-            document.getElementById('bB').style.display = d.serverTeam === 'B' ? 'block' : 'none';
+            ['bA1', 'bA2', 'bB1', 'bB2'].forEach(id => document.getElementById(id).style.display = 'none');
+            const ball = 'b' + d.serverTeam + d.serverNum;
+            if(document.getElementById(ball)) document.getElementById(ball).style.display = 'block';
         });
     </script>
 </body>
