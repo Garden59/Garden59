@@ -2,89 +2,62 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>ScoreTrak TV Pro - V5</title>
+    <title>ScoreTrak TV Pro - V5.1</title>
     <style>
-        /* Import des polices : Orbitron pour les chiffres (style digital) et Inter pour les textes */
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@700;900&display=swap');
 
         body { 
             background: #000; color: white; font-family: 'Inter', sans-serif; 
             margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column;
         }
 
-        /* --- ÉCRAN VEILLE --- */
-        #idle-screen { position: fixed; inset: 0; background: #000; z-index: 500; display: flex; }
-        .ad-space { flex: 1.8; display: flex; align-items: center; justify-content: center; border-right: 1px solid #222; }
-        .qr-space { flex: 1.2; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #050505; }
-        .qr-frame { background: white; padding: 20px; border-radius: 20px; }
-        .qr-frame img { width: 22vw; height: 22vw; }
-        
-        /* --- ÉCRAN SETUP --- */
-        #setup-screen { position: fixed; inset: 0; background: #000; z-index: 550; display: none; flex-direction: column; justify-content: center; align-items: center; }
-        .logo-setup { font-size: 8vw; color: #ccff00; font-style: italic; letter-spacing: -2px; }
-
         /* --- TABLEAU DE SCORE PRO --- */
-        #main-ui { flex: 1; display: flex; flex-direction: column; visibility: hidden; }
+        #main-ui { flex: 1; display: flex; flex-direction: column; }
         
         .header { 
             display: grid; 
-            grid-template-columns: 2fr 0.8fr 0.8fr 0.8fr 1.5fr; 
-            background: #0a0a0a; padding: 12px 0; 
-            font-size: 1.2vw; color: #555; text-transform: uppercase; letter-spacing: 3px; text-align: center;
-            border-bottom: 1px solid #111;
+            grid-template-columns: 2.2fr 0.7fr 0.7fr 0.7fr 1.5fr; 
+            background: #0a0a0a; padding: 15px 0; 
+            font-size: 1.1vw; color: #444; text-transform: uppercase; letter-spacing: 4px; text-align: center;
+            border-bottom: 1px solid #151515;
         }
 
-        .team-row { flex: 1; display: grid; grid-template-columns: 2fr 0.8fr 0.8fr 0.8fr 1.5fr; align-items: center; position: relative; border-bottom: 1px solid #111; }
+        .team-row { flex: 1; display: grid; grid-template-columns: 2.2fr 0.7fr 0.7fr 0.7fr 1.5fr; align-items: center; position: relative; border-bottom: 1px solid #111; }
         
-        /* Barres de couleur latérales */
-        .side-bar { position: absolute; left: 0; top: 0; bottom: 0; width: 15px; }
-        .side-vert { background: #4CAF50; box-shadow: 5px 0 15px rgba(76, 175, 80, 0.3); }
-        .side-bleu { background: #2196F3; box-shadow: 5px 0 15px rgba(33, 150, 243, 0.3); }
+        .side-bar { position: absolute; left: 0; top: 0; bottom: 0; width: 14px; }
+        .side-vert { background: #4CAF50; box-shadow: 8px 0 20px rgba(76, 175, 80, 0.3); }
+        .side-bleu { background: #2196F3; box-shadow: 8px 0 20px rgba(33, 150, 243, 0.3); }
 
-        .team-name { font-size: 5.5vw; font-weight: 900; padding-left: 4vw; display: flex; align-items: center; text-transform: uppercase; }
+        /* Affichage des 2 joueurs par équipe */
+        .names-container { padding-left: 5vw; display: flex; align-items: center; }
+        .players-list { display: flex; flex-direction: column; gap: 5px; }
+        .player-name { font-size: 3.2vw; font-weight: 900; text-transform: uppercase; line-height: 1; }
         .name-vert { color: #4CAF50; }
         .name-bleu { color: #2196F3; }
 
-        /* Balle de service */
-        .serve-ball { width: 2.2vw; height: 2.2vw; background: #ccff00; border-radius: 50%; margin-right: 25px; box-shadow: 0 0 20px #ccff00; display: none; }
+        .serve-ball { width: 2.5vw; height: 2.5vw; background: #ccff00; border-radius: 50%; margin-right: 25px; box-shadow: 0 0 25px #ccff00; display: none; }
 
-        /* Chiffres Sets et Points */
-        .set-digit { font-family: 'Orbitron', sans-serif; font-size: 9vw; text-align: center; color: white; }
-        .set-digit.dimmed { color: #151515; } /* Pour les sets non commencés */
+        .set-digit { font-family: 'Orbitron', sans-serif; font-size: 8.5vw; text-align: center; color: white; }
+        .set-digit.dimmed { color: #111; }
         
         .points-box { 
             height: 100%; display: flex; align-items: center; justify-content: center; 
-            font-size: 16vw; font-family: 'Orbitron', sans-serif; background: #050505;
+            font-size: 15vw; font-family: 'Orbitron', sans-serif; background: #030303;
             border-left: 2px solid #111;
         }
-        .pts-vert { color: #4CAF50; text-shadow: 0 0 30px rgba(76, 175, 80, 0.2); }
-        .pts-bleu { color: #2196F3; text-shadow: 0 0 30px rgba(33, 150, 243, 0.2); }
+        .pts-vert { color: #4CAF50; }
+        .pts-bleu { color: #2196F3; }
 
-        /* --- BANDEAU INFO (BALLE DE MATCH...) --- */
         #info-banner { 
-            height: 14vh; background: #000; display: flex; align-items: center; justify-content: center; 
+            height: 15vh; background: #000; display: flex; align-items: center; justify-content: center; 
             font-family: 'Orbitron', sans-serif; font-size: 4vw; color: #FFD700; 
-            text-transform: uppercase; letter-spacing: 12px; border-top: 2px solid #111;
+            text-transform: uppercase; letter-spacing: 15px; border-top: 2px solid #151515;
         }
         .blink { animation: flash 1s infinite; }
         @keyframes flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
     </style>
 </head>
 <body>
-
-    <div id="idle-screen">
-        <div class="ad-space"><div style="font-size: 5vw; color: #ccff00; font-style: italic; border: 3px solid #222; padding: 50px; border-radius: 40px;">PUB PARTENAIRE</div></div>
-        <div class="qr-space">
-            <div class="qr-frame"><img id="qr-code-img" src=""></div>
-            <div style="color:#ccff00; margin-top:25px; font-size:1.5vw; letter-spacing:2px;">SCANNER POUR JOUER</div>
-        </div>
-    </div>
-
-    <div id="setup-screen">
-        <div class="logo-setup">ScoreTrak</div>
-        <div style="color: white; letter-spacing: 8px; font-size: 1.5vw;">PRÉPARATION DU MATCH...</div>
-    </div>
 
     <div id="main-ui">
         <div class="header">
@@ -93,24 +66,32 @@
 
         <div class="team-row">
             <div class="side-bar side-vert"></div>
-            <div class="team-name name-vert">
-                <div id="ballA" class="serve-ball"></div> <span id="displayNA">VERTE</span>
+            <div class="names-container">
+                <div id="ballA" class="serve-ball"></div>
+                <div class="players-list">
+                    <div id="pA1" class="player-name name-vert">-</div>
+                    <div id="pA2" class="player-name name-vert">-</div>
+                </div>
             </div>
             <div id="set1A" class="set-digit">0</div>
             <div id="set2A" class="set-digit dimmed">0</div>
             <div id="set3A" class="set-digit dimmed">0</div>
-            <div class="points-box pts-vert" id="displayPtsA">0</div>
+            <div class="points-box pts-vert" id="ptsA">0</div>
         </div>
 
         <div class="team-row">
             <div class="side-bar side-bleu"></div>
-            <div class="team-name name-bleu">
-                <div id="ballB" class="serve-ball"></div> <span id="displayNB">BLEUE</span>
+            <div class="names-container">
+                <div id="ballB" class="serve-ball"></div>
+                <div class="players-list">
+                    <div id="pB1" class="player-name name-bleu">-</div>
+                    <div id="pB2" class="player-name name-bleu">-</div>
+                </div>
             </div>
             <div id="set1B" class="set-digit">0</div>
             <div id="set2B" class="set-digit dimmed">0</div>
             <div id="set3B" class="set-digit dimmed">0</div>
-            <div class="points-box pts-bleu" id="displayPtsB">0</div>
+            <div class="points-box pts-bleu" id="ptsB">0</div>
         </div>
 
         <div id="info-banner"></div>
@@ -124,65 +105,69 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // QR Code vers Vercel
-        const urlSmartphone = "https://score-trak.vercel.app/SmartphoneV5.html";
-        document.getElementById('qr-code-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(urlSmartphone)}&color=000000`;
-
         onValue(ref(db, 'match/terrain1'), (snap) => {
             const d = snap.val();
-            const labels = ["0", "15", "30", "40", "AD"];
-            
-            if (!d || d.status === 'idle') {
-                document.getElementById('idle-screen').style.display = 'flex';
-                document.getElementById('setup-screen').style.display = 'none';
-                document.getElementById('main-ui').style.visibility = 'hidden';
-                return;
-            }
-            if (d.status === 'setup') {
-                document.getElementById('idle-screen').style.display = 'none';
-                document.getElementById('setup-screen').style.display = 'flex';
-                document.getElementById('main-ui').style.visibility = 'hidden';
-                return;
-            }
+            if (!d || d.status !== 'active') return;
 
-            document.getElementById('idle-screen').style.display = 'none';
-            document.getElementById('setup-screen').style.display = 'none';
-            document.getElementById('main-ui').style.visibility = 'visible';
+            // Noms des 4 joueurs
+            document.getElementById('pA1').innerText = d.pA1 || "";
+            document.getElementById('pA2').innerText = d.pA2 || "";
+            document.getElementById('pB1').innerText = d.pB1 || "";
+            document.getElementById('pB2').innerText = d.pB2 || "";
 
-            // Mise à jour Noms et Service
-            document.getElementById('displayNA').innerText = d.pA1;
-            document.getElementById('displayNB').innerText = d.pB1;
+            // Service
             document.getElementById('ballA').style.display = (d.serverTeam === 'A') ? 'block' : 'none';
             document.getElementById('ballB').style.display = (d.serverTeam === 'B') ? 'block' : 'none';
 
-            // Mise à jour Points
-            document.getElementById('displayPtsA').innerText = labels[d.scoreA] || d.scoreA;
-            document.getElementById('displayPtsB').innerText = labels[d.scoreB] || d.scoreB;
+            // Points
+            const labels = ["0", "15", "30", "40", "AD"];
+            document.getElementById('ptsA').innerText = labels[d.scoreA] || d.scoreA;
+            document.getElementById('ptsB').innerText = labels[d.scoreB] || d.scoreB;
 
-            // Affichage des Games dans le set actuel (Exemple S1)
+            // Sets
             document.getElementById('set1A').innerText = d.gamesA;
             document.getElementById('set1B').innerText = d.gamesB;
 
-            // --- LOGIQUE BANDEAU INFO ---
+            // --- LOGIQUE BANDEAU INFO CORRIGÉE ---
             const banner = document.getElementById('info-banner');
             banner.innerText = "";
             banner.classList.remove('blink');
 
-            // Balle de Match (Si un joueur est à 1 point de gagner le dernier set nécessaire)
-            if((d.setsA === d.maxSets - 1 && d.gamesA >= 5 && d.scoreA === 3) || (d.setsB === d.maxSets - 1 && d.gamesB >= 5 && d.scoreB === 3)) {
+            const isNoAd = d.rule === 'decisif';
+            const scoreA = d.scoreA; // 0=0, 1=15, 2=30, 3=40, 4=AD
+            const scoreB = d.scoreB;
+
+            // 1. BALLE DE MATCH
+            if((d.setsA === d.maxSets - 1 && d.gamesA >= 5 && (scoreA === 3 || scoreA === 4)) || 
+               (d.setsB === d.maxSets - 1 && d.gamesB >= 5 && (scoreB === 3 || scoreB === 4))) {
                 banner.innerText = "BALLE DE MATCH"; banner.classList.add('blink');
             } 
-            // Balle de Set
-            else if((d.gamesA >= 5 && d.scoreA === 3) || (d.gamesB >= 5 && d.scoreB === 3)) {
+            // 2. BALLE DE SET
+            else if((d.gamesA >= 5 && (scoreA === 3 || scoreA === 4)) || (d.gamesB >= 5 && (scoreB === 3 || scoreB === 4))) {
                 banner.innerText = "BALLE DE SET";
             }
-            // Balle de Break (Le serveur est mené 0-40, 15-40, 30-40 ou au point décisif)
-            else if((d.serverTeam === 'A' && d.scoreB === 3) || (d.serverTeam === 'B' && d.scoreA === 3)) {
-                banner.innerText = "BALLE DE BREAK";
-            }
-            // Balle de Jeu
-            else if(d.scoreA === 3 || d.scoreB === 3) {
-                banner.innerText = "BALLE DE JEU";
+            // 3. BALLE DE BREAK (Corrigé : Pas à 40-40 en mode Avantage)
+            else {
+                let isBreakChance = false;
+                if (isNoAd) {
+                    // Au point décisif (40-40), si le receveur gagne, il y a break
+                    if (d.serverTeam === 'A' && scoreB === 3) isBreakChance = true;
+                    if (d.serverTeam === 'B' && scoreA === 3) isBreakChance = true;
+                } else {
+                    // Mode Avantage : Break si le receveur a "AD" ou s'il mène à 40 (0-40, 15-40, 30-40)
+                    // Mais PAS à 40-40
+                    if (d.serverTeam === 'A' && (scoreB === 4 || (scoreB === 3 && scoreA < 3))) isBreakChance = true;
+                    if (d.serverTeam === 'B' && (scoreA === 4 || (scoreA === 3 && scoreB < 3))) isBreakChance = true;
+                }
+
+                if (isBreakChance) {
+                    banner.innerText = "BALLE DE BREAK";
+                } 
+                // 4. BALLE DE JEU (Si le serveur peut gagner le jeu)
+                else if ((d.serverTeam === 'A' && (scoreA === 3 || scoreA === 4)) || 
+                         (d.serverTeam === 'B' && (scoreB === 3 || scoreB === 4))) {
+                    banner.innerText = "BALLE DE JEU";
+                }
             }
         });
     </script>
