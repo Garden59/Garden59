@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ScoreTrak TV - V4 Logic + V5 Design Full</title>
+    <title>ScoreTrak TV - Live V5 Design</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Roboto:wght@900&display=swap');
 
@@ -37,46 +37,50 @@
         .victoire-title { font-size: 10vw; color: #ccff00; text-shadow: 0 0 50px rgba(204, 255, 0, 0.5); animation: pulse 1s infinite; font-family: 'Orbitron'; }
         .victoire-names { font-size: 5vw; color: white; margin-top: 20px; }
 
-        /* Interface Scoreboard */
+        /* Interface Scoreboard (Design V5) */
         .scoreboard-wrapper { flex: 1; display: flex; flex-direction: column; width: 100%; visibility: hidden; }
         
         table { width: 100%; height: 100%; border-collapse: collapse; table-layout: fixed; }
         
         thead th { 
-            background: #111; color: #555; font-size: 1.5vw; 
+            background: #111; color: #555; font-size: 1.8vw; 
             padding: 1.5vh; text-transform: uppercase; border-bottom: 2px solid #222; 
         }
 
-        .col-names { width: 40%; }
-        .col-sets { width: 10%; }
-        .col-games { width: 15%; }
+        .col-names { width: 45%; }
+        .col-set { width: 10%; }
         .col-points { width: 25%; background-color: #050505; }
 
         td { text-align: center; border-bottom: 1px solid #111; }
 
-        .team-box { display: flex; flex-direction: column; justify-content: center; padding-left: 3vw; text-align: left; }
-        .player-row { display: flex; align-items: center; height: 4.5vw; }
-        .name { font-size: 4vw; font-weight: 900; text-transform: uppercase; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .team-box { display: flex; flex-direction: column; justify-content: center; padding-left: 4vw; text-align: left; }
+        .player-row { display: flex; align-items: center; height: 5vw; }
+        .name { font-size: 4.5vw; font-weight: 900; text-transform: uppercase; line-height: 1; }
 
+        /* Indicateur de service */
         .serve-ball { 
-            width: 2vw; height: 2vw; background: #ccff00; 
+            width: 2.2vw; height: 2.2vw; background: #ccff00; 
             border-radius: 50%; margin-left: 1.5vw; 
-            box-shadow: 0 0 20px #ccff00; display: none; 
+            box-shadow: 0 0 25px #ccff00; display: none; 
         }
 
-        /* Styles Chiffres */
-        .val-sets { font-family: 'Orbitron'; font-size: 6vw; color: #FF5722; } /* Orange comme V4 */
-        .val-games { font-family: 'Orbitron'; font-size: 9vw; color: #FFD700; } /* Or comme V4 */
-        .val-points { font-family: 'Orbitron'; font-size: 15vw; font-weight: 900; }
+        .score-set { font-family: 'Orbitron', sans-serif; font-size: 9vw; font-weight: 900; color: #fff; }
+        .score-main { font-family: 'Orbitron', sans-serif; font-size: 16vw; font-weight: 900; }
 
-        .row-green { border-left: 2.5vw solid #4CAF50; }
-        .row-green .name, .row-green .val-points { color: #4CAF50; }
+        .row-green { border-left: 3vw solid #4CAF50; }
+        .row-green .name, .row-green .score-main { color: #4CAF50; }
 
-        .row-blue { border-left: 2.5vw solid #2196F3; }
-        .row-blue .name, .row-blue .val-points { color: #2196F3; }
+        .row-blue { border-left: 3vw solid #2196F3; }
+        .row-blue .name, .row-blue .score-main { color: #2196F3; }
 
-        .status-bar { height: 10vh; background: #000; display: flex; justify-content: center; align-items: center; border-top: 2px solid #222; }
-        .gold-badge { color: #FFD600; font-size: 3vw; font-weight: 900; text-transform: uppercase; letter-spacing: 8px; animation: blink-gold 1s infinite; display: none; }
+        /* Barre de statut dorée */
+        .status-bar { height: 12vh; background: #000; display: flex; justify-content: center; align-items: center; border-top: 2px solid #222; }
+        .gold-badge { 
+            color: #FFD600; font-size: 3.5vw; font-weight: 900; 
+            text-transform: uppercase; letter-spacing: 8px; 
+            text-shadow: 0 0 20px rgba(255, 214, 0, 0.6); 
+            animation: blink-gold 1s infinite; display: none; 
+        }
 
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         @keyframes blink-gold { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
@@ -101,8 +105,7 @@
             <thead>
                 <tr>
                     <th class="col-names">Équipes</th>
-                    <th class="col-sets">Sets</th>
-                    <th class="col-games">Jeux</th>
+                    <th class="col-set">Sets</th>
                     <th class="col-points">Points</th>
                 </tr>
             </thead>
@@ -114,9 +117,8 @@
                             <div class="player-row"><span id="nA2" class="name"></span><div id="bA2" class="serve-ball"></div></div>
                         </div>
                     </td>
-                    <td><span id="stA" class="val-sets">0</span></td>
-                    <td><span id="gA" class="val-games">0</span></td>
-                    <td class="col-points"><span id="sA" class="val-points">0</span></td>
+                    <td><span id="stA" class="score-set">0</span></td>
+                    <td class="col-points"><span id="sA" class="score-main">0</span></td>
                 </tr>
                 <tr class="row-blue">
                     <td class="col-names">
@@ -125,9 +127,8 @@
                             <div class="player-row"><span id="nB2" class="name"></span><div id="bB2" class="serve-ball"></div></div>
                         </div>
                     </td>
-                    <td><span id="stB" class="val-sets">0</span></td>
-                    <td><span id="gB" class="val-games">0</span></td>
-                    <td class="col-points"><span id="sB" class="val-points">0</span></td>
+                    <td><span id="stB" class="score-set">0</span></td>
+                    <td class="col-points"><span id="sB" class="score-main">0</span></td>
                 </tr>
             </tbody>
         </table>
@@ -150,6 +151,7 @@
         
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+
         const labels = ["0", "15", "30", "40", "AD"];
 
         onValue(ref(db, 'match/terrain1'), (snap) => {
@@ -157,11 +159,13 @@
             const wait = document.getElementById('waiting-screen');
             const main = document.getElementById('main-ui');
             const victory = document.getElementById('victory-screen');
+            const badge = document.getElementById('status-badge');
 
             if (!d || !d.active) {
                 wait.style.display = 'flex';
                 main.style.visibility = 'hidden';
                 victory.style.display = 'none';
+                badge.style.display = 'none';
                 stopConfetti();
                 return;
             }
@@ -169,6 +173,7 @@
             wait.style.display = 'none';
             main.style.visibility = 'visible';
 
+            // Gestion de la victoire
             if (d.winner) {
                 victory.style.display = 'flex';
                 document.getElementById('win-names-tv').innerText = d.winner === 'A' ? `${d.pA1} & ${d.pA2}` : `${d.pB1} & ${d.pB2}`;
@@ -178,22 +183,30 @@
                 stopConfetti();
             }
 
-            // Noms
-            document.getElementById('nA1').innerText = d.pA1; document.getElementById('nA2').innerText = d.pA2;
-            document.getElementById('nB1').innerText = d.pB1; document.getElementById('nB2').innerText = d.pB2;
+            // Mise à jour noms
+            document.getElementById('nA1').innerText = d.pA1; 
+            document.getElementById('nA2').innerText = d.pA2;
+            document.getElementById('nB1').innerText = d.pB1; 
+            document.getElementById('nB2').innerText = d.pB2;
             
-            // Logique V4 : Points (avec gestion Tie-break)
+            // Mise à jour Scores (Gestion Tie-break incluse)
             const isTB = (d.gamesA === 6 && d.gamesB === 6);
             document.getElementById('sA').innerText = isTB ? d.scoreA : (labels[d.scoreA] || "0");
             document.getElementById('sB').innerText = isTB ? d.scoreB : (labels[d.scoreB] || "0");
             
-            // Jeux et Sets (Identifiants V4)
-            document.getElementById('gA').innerText = d.gamesA; 
-            document.getElementById('gB').innerText = d.gamesB;
+            // Affichage des Sets (V5 utilise uniquement le compteur de sets gagnés pour plus de clarté TV)
             document.getElementById('stA').innerText = d.setsA; 
             document.getElementById('stB').innerText = d.setsB;
 
-            // Service
+            // Gestion du badge d'alerte (Optionnel - basé sur le score)
+            if (d.scoreA === 4 || d.scoreB === 4) {
+                badge.innerText = "BALLE DE JEU";
+                badge.style.display = "block";
+            } else {
+                badge.style.display = "none";
+            }
+
+            // Balles de service
             ['bA1', 'bA2', 'bB1', 'bB2'].forEach(id => document.getElementById(id).style.display = 'none');
             const current = 'b' + d.serverTeam + d.serverNum;
             if(document.getElementById(current)) document.getElementById(current).style.display = 'block';
@@ -207,6 +220,7 @@
                 c.style.left = Math.random()*100+'vw';
                 c.style.backgroundColor = ['#ccff00','#fff','#4CAF50','#2196F3','#FFD700'][Math.floor(Math.random()*5)];
                 c.style.animationDuration = (Math.random()*3 + 2)+'s';
+                c.style.animationDelay = (Math.random()*2)+'s';
                 document.getElementById('victory-screen').appendChild(c);
             }
         }
