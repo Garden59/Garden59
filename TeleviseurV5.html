@@ -2,71 +2,100 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>ScoreTrak TV Pro</title>
+    <title>ScoreTrak TV - V5 Final</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@700;900&display=swap');
-        body { background: #000; color: white; font-family: 'Inter', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
-        #idle-screen { position: fixed; inset: 0; display: flex; z-index: 500; }
+        body { background: #000; color: white; font-family: 'Arial Black', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
+        
+        /* ÉCRAN VEILLE */
+        #idle-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; z-index: 500; }
         .ad-space { flex: 1.8; border-right: 2px solid #1a1a1a; display: flex; flex-direction: column; justify-content: center; align-items: center; background: radial-gradient(circle at center, #111 0%, #000 100%); }
         .qr-space { flex: 1.2; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #050505; }
         .qr-frame { background: white; padding: 20px; border-radius: 20px; }
-        .qr-frame img { width: 22vw; height: 22vw; }
-        #setup-screen { position: fixed; inset: 0; background: #000; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 550; }
-        .logo-setup { font-size: 10vw; color: #ccff00; font-style: italic; font-weight: 900; }
-        .main-container { height: 85vh; display: flex; flex-direction: column; justify-content: center; visibility: hidden; }
-        .row { display: grid; grid-template-columns: 2.2fr 0.7fr 0.7fr 0.7fr 1.5fr; align-items: center; padding: 0 4vw; height: 42.5vh; position: relative; border-bottom: 1px solid #111; }
-        .side-bar { position: absolute; left: 0; top: 0; bottom: 0; width: 14px; }
-        .side-vert { background: #4CAF50; box-shadow: 8px 0 20px rgba(76, 175, 80, 0.3); }
-        .side-bleu { background: #2196F3; box-shadow: 8px 0 20px rgba(33, 150, 243, 0.3); }
-        .names-container { display: flex; align-items: center; justify-content: space-between; padding-right: 2vw; }
-        .player-name { font-size: 4.5vw; font-weight: 900; text-transform: uppercase; }
-        .serve-ball { width: 2.5vw; height: 2.5vw; background: #ccff00; border-radius: 50%; box-shadow: 0 0 25px #ccff00; display: none; }
-        .digit { font-family: 'Orbitron', sans-serif; font-size: 8.5vw; text-align: center; color: white; }
-        .pts { font-family: 'Orbitron', sans-serif; font-size: 16vw; font-weight: 900; text-align: center; background: #030303; height: 100%; display: flex; align-items: center; justify-content: center; border-left: 2px solid #111; }
-        #info-banner { height: 15vh; background: #000; display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', sans-serif; font-size: 4vw; color: #FFD700; text-transform: uppercase; letter-spacing: 15px; border-top: 2px solid #151515; }
-        .blink { animation: flash 1s infinite; }
-        @keyframes flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+        .qr-frame img { width: 22vw; height: 22vw; display: block; }
+        .qr-text { margin-top: 30px; font-size: 1.8vw; color: #ccff00; text-align: center; text-transform: uppercase; }
+
+        /* ÉCRAN SETUP */
+        #setup-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 550; }
+        .logo-setup { font-size: 10vw; color: #ccff00; font-style: italic; animation: pulse 1.5s infinite; }
+
+        /* ÉCRAN SCORE */
+        .main-container { height: 100vh; display: flex; flex-direction: column; justify-content: center; visibility: hidden; }
+        .row { display: flex; align-items: center; justify-content: space-between; padding: 2vh 4vw; border-bottom: 2px solid #111; height: 45vh; }
+        .pts { font-size: 24vw; font-weight: 900; min-width: 25vw; text-align: center; }
+        .games { font-size: 11vw; color: #FFD700; background: #1a1a1a; padding: 10px 25px; border-radius: 15px; margin: 0 30px; }
+
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
     </style>
 </head>
 <body>
+
     <div id="idle-screen">
-        <div class="ad-space"><div style="font-size: 5vw; color: #ccff00; font-style: italic; border: 3px solid #222; padding: 50px; border-radius: 40px;">SCORE<span style="color:white">TRAK</span></div></div>
-        <div class="qr-space"><div class="qr-frame"><img id="qr-code-img" src=""></div><div style="color:#ccff00; margin-top:20px; font-size:1.5vw;">SCANNER POUR JOUER</div></div>
+        <div class="ad-space">
+            <div style="font-size: 5vw; color: #ccff00; font-style: italic; border: 3px solid #222; padding: 50px; border-radius: 40px; text-align: center;">VOTRE PUB ICI</div>
+        </div>
+        <div class="qr-space">
+            <div class="qr-frame"><img id="qr-code-img" src="" alt="QR Code"></div>
+            <div class="qr-text">Scanner pour<br>gérer le match</div>
+        </div>
     </div>
-    <div id="setup-screen"><div class="logo-setup">ScoreTrak</div></div>
+
+    <div id="setup-screen">
+        <div class="logo-setup">ScoreTrak</div>
+        <div style="color: white; letter-spacing: 5px; margin-top: 20px;">CONFIGURATION EN COURS...</div>
+    </div>
+
     <div id="main-ui" class="main-container">
-        <div class="row"><div class="side-bar side-vert"></div><div class="names-container"><div id="nA" class="player-name" style="color:#4CAF50;"></div><div id="ballA" class="serve-ball"></div></div><div id="g1A" class="digit">0</div><div id="g2A" class="digit" style="color:#222">0</div><div id="g3A" class="digit" style="color:#222">0</div><div id="sA_ui" class="pts" style="color:#4CAF50;">0</div></div>
-        <div class="row" style="border:none;"><div class="side-bar side-bleu"></div><div class="names-container"><div id="nB" class="player-name" style="color:#2196F3;"></div><div id="ballB" class="serve-ball"></div></div><div id="g1B" class="digit">0</div><div id="g2B" class="digit" style="color:#222">0</div><div id="g3B" class="digit" style="color:#222">0</div><div id="sB_ui" class="pts" style="color:#2196F3;">0</div></div>
+        <div class="row" style="color: #4CAF50;">
+            <div id="nA" style="font-size: 5vw; font-weight: bold; flex: 4;"></div>
+            <div style="display: flex; flex: 6; justify-content: flex-end; align-items: center;">
+                <div id="sA" class="pts">0</div><div id="gA" class="games">0</div><div id="stA" style="font-size: 8vw; color: #FF5722;">0</div>
+            </div>
+        </div>
+        <div class="row" style="color: #2196F3; border: none;">
+            <div id="nB" style="font-size: 5vw; font-weight: bold; flex: 4;"></div>
+            <div style="display: flex; flex: 6; justify-content: flex-end; align-items: center;">
+                <div id="sB" class="pts">0</div><div id="gB" class="games">0</div><div id="stB" style="font-size: 8vw; color: #FF5722;">0</div>
+            </div>
+        </div>
     </div>
-    <div id="info-banner"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
         const firebaseConfig = { apiKey: "AIzaSyCjlHL7GEXFvnrNzZAIEZyl-WCqUI3txiM", authDomain: "scoretrak-123.firebaseapp.com", databaseURL: "https://scoretrak-123-default-rtdb.europe-west1.firebasedatabase.app", projectId: "scoretrak-123" };
-        const app = initializeApp(firebaseConfig); const db = getDatabase(app);
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // NOUVEAU LIEN SMARTPHONE V5
+        const urlSmartphone = "https://hilarious-hummingbird-1e8113.netlify.app/smartphonev5";
+        document.getElementById('qr-code-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(urlSmartphone)}&color=000000`;
+
         onValue(ref(db, 'match/terrain1'), (snap) => {
-            const d = snap.val(); if (!d) return;
+            const d = snap.val();
             const labels = ["0", "15", "30", "40", "AD"];
-            document.getElementById('idle-screen').style.display = (d.status === 'idle') ? 'flex' : 'none';
-            document.getElementById('setup-screen').style.display = (d.status === 'setup') ? 'flex' : 'none';
-            document.getElementById('main-ui').style.visibility = (d.status === 'active') ? 'visible' : 'hidden';
-            if (d.status === 'idle') document.getElementById('qr-code-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent("https://score-trak.vercel.app/SmartphoneV5.html")}`;
-            if (d.status === 'active') {
-                document.getElementById('nA').innerText = d.pA1 + " / " + d.pA2;
-                document.getElementById('nB').innerText = d.pB1 + " / " + d.pB2;
-                document.getElementById('sA_ui').innerText = labels[d.scoreA] || d.scoreA;
-                document.getElementById('sB_ui').innerText = labels[d.scoreB] || d.scoreB;
-                document.getElementById('g1A').innerText = d.gamesA; document.getElementById('g1B').innerText = d.gamesB;
-                document.getElementById('ballA').style.display = (d.serverTeam === 'A') ? 'block' : 'none';
-                document.getElementById('ballB').style.display = (d.serverTeam === 'B') ? 'block' : 'none';
-                const banner = document.getElementById('info-banner'); banner.innerText = ""; banner.classList.remove('blink');
-                const sA = d.scoreA; const sB = d.scoreB;
-                if((d.setsA === d.maxSets-1 && d.gamesA >= 5 && sA >= 3 && sA > sB) || (d.setsB === d.maxSets-1 && d.gamesB >= 5 && sB >= 3 && sB > sA)) { banner.innerText = "BALLE DE MATCH"; banner.classList.add('blink'); }
-                else if((d.gamesA >= 5 && sA >= 3 && sA > sB) || (d.gamesB >= 5 && sB >= 3 && sB > sA)) { banner.innerText = "BALLE DE SET"; }
-                else if((d.serverTeam === 'A' && (sB === 4 || (sB === 3 && sA < 3))) || (d.serverTeam === 'B' && (sA === 4 || (sA === 3 && sB < 3)))) { banner.innerText = "BALLE DE BREAK"; }
-                else if((d.serverTeam === 'A' && sA >= 3 && sA > sB) || (d.serverTeam === 'B' && sB >= 3 && sB > sA)) { banner.innerText = "BALLE DE JEU"; }
+            if (!d || d.status === 'idle') {
+                document.getElementById('idle-screen').style.display = 'flex';
+                document.getElementById('setup-screen').style.display = 'none';
+                document.getElementById('main-ui').style.visibility = 'hidden';
+                return;
             }
+            if (d.status === 'setup') {
+                document.getElementById('idle-screen').style.display = 'none';
+                document.getElementById('setup-screen').style.display = 'flex';
+                document.getElementById('main-ui').style.visibility = 'hidden';
+                return;
+            }
+            document.getElementById('idle-screen').style.display = 'none';
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('main-ui').style.visibility = 'visible';
+            
+            document.getElementById('nA').innerText = d.pA1 + " / " + d.pA2;
+            document.getElementById('nB').innerText = d.pB1 + " / " + d.pB2;
+            document.getElementById('sA').innerText = labels[d.scoreA] || d.scoreA;
+            document.getElementById('sB').innerText = labels[d.scoreB] || d.scoreB;
+            document.getElementById('gA').innerText = d.gamesA; document.getElementById('gB').innerText = d.gamesB;
+            document.getElementById('stA').innerText = d.setsA; document.getElementById('stB').innerText = d.setsB;
         });
     </script>
 </body>
