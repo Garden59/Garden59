@@ -10,11 +10,9 @@
         #init-screen, #setup-screen, #score-screen { display: none; flex-direction: column; align-items: center; justify-content: center; flex: 1; }
         .team-input { background: #1a1a1a; padding: 12px; border-radius: 12px; margin-bottom: 8px; border-left: 8px solid; width: 88%; text-align: left; }
         input, select { width: 92%; padding: 12px; margin: 4px 0; border-radius: 8px; border: none; background: #333; color: white; font-size: 15px; }
-        .config-row { background: #1a1a1a; padding: 12px; border-radius: 12px; width: 88%; margin-bottom: 10px; text-align: left; box-sizing: border-box; }
+        .config-row { background: #1a1a1a; padding: 12px; border-radius: 12px; width: 88%; margin-bottom: 10px; text-align: left; }
         label { font-size: 11px; color: #888; text-transform: uppercase; }
-        .share-card { background: #1a1a1a; padding: 15px; border-radius: 15px; width: 88%; margin: 10px 0; border: 1px solid #333; }
-        .btn-share { background: #ccff00; color: black; padding: 12px; border: none; border-radius: 10px; width: 100%; font-weight: bold; text-transform: uppercase; }
-        .btn-start { background: #ccff00; color: black; padding: 18px; border: none; border-radius: 15px; width: 88%; font-weight: bold; text-transform: uppercase; margin-top: 10px; }
+        .btn-start { background: #ccff00; color: black; padding: 18px; border: none; border-radius: 15px; width: 88%; font-weight: bold; text-transform: uppercase; }
         .btn-point { width: 92%; padding: 35px 0; border: none; border-radius: 20px; color: white; font-size: 20px; font-weight: bold; text-transform: uppercase; margin: 8px 0; }
         .vert { background: #2E7D32; } .bleu { background: #1565C0; }
         .btn-action { background: #333; color: white; padding: 15px; border: none; border-radius: 12px; width: 44%; margin: 5px; font-weight: bold; }
@@ -25,8 +23,7 @@
     <div id="setup-screen">
         <div class="team-input" style="border-color: #4CAF50;"><input type="text" id="pA1" placeholder="Vert 1"><input type="text" id="pA2" placeholder="Vert 2"></div>
         <div class="team-input" style="border-color: #2196F3;"><input type="text" id="pB1" placeholder="Bleu 1"><input type="text" id="pB2" placeholder="Bleu 2"></div>
-        <div class="config-row"><label>Serveur ?</label><select id="firstTeam"><option value="A">VERT</option><option value="B">BLEU</option></select><label>Règle</label><select id="gameRule"><option value="decisif">NO-AD</option><option value="avantage">DEUCE</option></select></div>
-        <div class="share-card"><button class="btn-share" onclick="shareToWatch()">🔗 LIEN MONTRE</button></div>
+        <div class="config-row"><label>Serveur ?</label><select id="firstTeam"><option value="A">VERT</option><option value="B">BLEU</option></select><label>Règle</label><select id="gameRule"><option value="decisif">NO-AD</option><option value="avantage">AVANTAGE</option></select></div>
         <button class="btn-start" onclick="startMatch()">LANCER</button>
     </div>
     <div id="score-screen"><button id="btnA" class="btn-point vert" onclick="addPoint('scoreA')"></button><button id="btnB" class="btn-point bleu" onclick="addPoint('scoreB')"></button><div><button class="btn-action" onclick="undo()">ANNULER</button><button class="btn-action" style="background:#800;" onclick="resetMatch()">RESET</button></div></div>
@@ -35,34 +32,27 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, get, onValue, update, remove, push, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
         const firebaseConfig = { apiKey: "AIzaSyCjlHL7GEXFvnrNzZAIEZyl-WCqUI3txiM", authDomain: "scoretrak-123.firebaseapp.com", databaseURL: "https://scoretrak-123-default-rtdb.europe-west1.firebasedatabase.app", projectId: "scoretrak-123" };
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const matchRef = ref(db, 'match/terrain1');
-        const historyRef = ref(db, 'history/terrain1');
-
+        const app = initializeApp(firebaseConfig); const db = getDatabase(app);
+        const matchRef = ref(db, 'match/terrain1'); const hRef = ref(db, 'history/terrain1');
         onValue(matchRef, (snap) => {
             const d = snap.val(); if (!d || d.status === 'idle') { document.getElementById('init-screen').style.display = 'flex'; document.getElementById('setup-screen').style.display = 'none'; document.getElementById('score-screen').style.display = 'none'; }
             else if (d.status === 'setup') { document.getElementById('init-screen').style.display = 'none'; document.getElementById('setup-screen').style.display = 'flex'; document.getElementById('score-screen').style.display = 'none'; }
             else { document.getElementById('init-screen').style.display = 'none'; document.getElementById('setup-screen').style.display = 'none'; document.getElementById('score-screen').style.display = 'flex'; document.getElementById('btnA').innerText = d.pA1; document.getElementById('btnB').innerText = d.pB1; }
         });
-
         window.startMatch = () => { set(matchRef, { status: 'active', pA1: document.getElementById('pA1').value || "V1", pA2: document.getElementById('pA2').value || "V2", pB1: document.getElementById('pB1').value || "B1", pB2: document.getElementById('pB2').value || "B2", scoreA: 0, scoreB: 0, gamesA: 0, gamesB: 0, setsA: 0, setsB: 0, serverTeam: document.getElementById('firstTeam').value, rule: document.getElementById('gameRule').value, maxSets: 2, serverNum: 1 }); };
-
         window.addPoint = async (team) => {
             const snap = await get(matchRef); let d = snap.val(); if (!d || d.winner) return;
-            await push(historyRef, JSON.stringify(d));
-            const opp = (team === 'scoreA') ? 'scoreB' : 'scoreA';
+            await push(hRef, JSON.stringify(d)); const opp = (team === 'scoreA') ? 'scoreB' : 'scoreA';
             if (d[team] < 3) d[team]++;
             else if (d[team] === 3) { if (d[opp] < 3 || d.rule === 'decisif') winGame(d, team); else d[team] = 4; }
             else if (d[team] === 4) winGame(d, team);
+            else if (d[opp] === 4) d[opp] = 3;
             set(matchRef, d);
         };
-
         function winGame(d, team) { d.scoreA = 0; d.scoreB = 0; if (team === 'scoreA') d.gamesA++; else d.gamesB++; d.serverTeam = (d.serverTeam === 'A') ? 'B' : 'A'; }
-        window.undo = async () => { const hSnap = await get(query(historyRef, limitToLast(1))); if (hSnap.exists()) { const key = Object.keys(hSnap.val())[0]; set(matchRef, JSON.parse(hSnap.val()[key])); remove(ref(db, `history/terrain1/${key}`)); } };
+        window.undo = async () => { const hSnap = await get(query(hRef, limitToLast(1))); if (hSnap.exists()) { const key = Object.keys(hSnap.val())[0]; set(matchRef, JSON.parse(hSnap.val()[key])); remove(ref(db, `history/terrain1/${key}`)); } };
         window.resetMatch = () => { if(confirm("RESET?")) set(matchRef, { status: 'idle' }); };
         window.goToSetup = () => update(matchRef, { status: 'setup' });
-        window.shareToWatch = () => { navigator.clipboard.writeText("https://score-trak.vercel.app/WATCHV5.html"); alert("Lien copié !"); };
     </script>
 </body>
 </html>
