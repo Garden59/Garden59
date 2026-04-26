@@ -5,39 +5,55 @@
     <title>ScoreTrak TV - Padel Pro Edition</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Roboto:wght@400;700;900&display=swap');
-        :root { --padel-yellow: #ccff00; --padel-blue: #00d2ff; --carbon-bg: radial-gradient(circle at center, #1a1c23 0%, #0a0a0c 100%); --border-color: #222b38; }
+        :root { --padel-yellow: #ccff00; --padel-blue: #00d2ff; --carbon-bg: #000000; --border-color: #222b38; }
         body { background: var(--carbon-bg); color: white; font-family: 'Roboto', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
         
+        /* 1. ÉCRAN VEILLE (RESTORED) */
         #idle-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; z-index: 500; background: var(--carbon-bg); }
         .ad-space { flex: 1.8; border-right: 2px solid var(--border-color); display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .partner-box { font-size: 5vw; color: var(--padel-yellow); font-style: italic; border: 3px solid #333; padding: 50px; border-radius: 40px; text-align: center; font-weight: 900; }
         .qr-space { flex: 1.2; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #050608; }
         .qr-frame { background: white; padding: 20px; border-radius: 20px; }
         .qr-frame img { width: 20vw; height: 20vw; display: block; }
-        .qr-text { margin-top: 30px; font-size: 1.6vw; color: var(--padel-yellow); text-align: center; text-transform: uppercase; font-weight: bold; }
+        .qr-text { margin-top: 30px; font-size: 1.6vw; color: var(--padel-yellow); text-align: center; text-transform: uppercase; letter-spacing: 2px; font-weight: bold; }
 
+        /* 2. ÉCRAN SETUP */
         #setup-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 550; }
         .logo-setup { font-size: 12vw; color: var(--padel-yellow); font-family: 'Orbitron'; font-style: italic; font-weight: 900; animation: pulse 1.5s infinite; }
         .setup-sub { font-size: 1.5vw; color: #555; text-transform: uppercase; letter-spacing: 12px; margin-top: 20px; font-weight: bold; }
 
+        /* 3. ÉCRAN VICTOIRE & RÉSULTAT FINAL */
         #victory-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 600; }
         .victory-title { font-size: 12vw; color: var(--padel-yellow); font-family: 'Orbitron'; font-weight: 900; text-shadow: 0 0 50px rgba(204, 255, 0, 0.6); }
 
+        #final-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 580; }
+        .final-header { font-size: 4vw; color: var(--padel-blue); text-transform: uppercase; font-weight: 900; margin-bottom: 5vh; letter-spacing: 5px; animation: moveTitle 4s ease-in-out infinite; }
+        
+        /* TABLEAU FINAL EN LIGNES */
+        .final-table { width: 90%; background: rgba(20, 20, 20, 0.8); border-radius: 20px; padding: 4vh; border: 1px solid var(--border-color); }
+        .final-row { display: grid; grid-template-columns: 40% repeat(5, 1fr); align-items: center; padding: 2vh 0; border-bottom: 1px solid #222; }
+        .final-names { font-size: 3vw; font-weight: 900; text-transform: uppercase; color: #fff; }
+        .final-set-box { font-family: 'Orbitron'; font-size: 4vw; font-weight: 900; text-align: center; position: relative; }
+        .final-winner-row { color: var(--padel-yellow) !important; }
+
+        /* 4. INTERFACE MATCH */
         .main-container { height: 100vh; display: flex; flex-direction: column; visibility: hidden; padding: 2vh 2vw; box-sizing: border-box; }
-        .header-row { display: grid; grid-template-columns: 45% 10% 10% 10% 25%; padding: 1.5vh 0; color: #6a7b92; font-weight: 900; font-size: 1.2vw; text-transform: uppercase; text-align: center; border-bottom: 2px solid var(--border-color); }
-        .team-row { display: grid; grid-template-columns: 45% 10% 10% 10% 25%; height: 40vh; border-bottom: 1px solid var(--border-color); }
+        .header-row { display: grid; grid-template-columns: 35% 7% 7% 7% 7% 7% 23%; padding: 1.5vh 0; color: #6a7b92; font-weight: 900; font-size: 1.2vw; text-transform: uppercase; text-align: center; border-bottom: 2px solid var(--border-color); }
+        .team-row { display: grid; grid-template-columns: 35% 7% 7% 7% 7% 7% 23%; height: 40vh; border-bottom: 1px solid var(--border-color); }
         .player-line { display: flex; align-items: center; height: 6vw; }
-        .name-txt { font-size: 4.5vw; font-weight: 900; text-transform: uppercase; color: #fff; }
-        .serve-ball { width: 1.8vw; height: 1.8vw; background: var(--padel-yellow); border-radius: 50%; margin-left: 20px; box-shadow: 0 0 20px var(--padel-yellow); display: none; }
-        .set-cell { display: flex; align-items: center; justify-content: center; font-family: 'Orbitron'; font-size: 6.5vw; font-weight: 900; color: #fff; border-right: 1px solid var(--border-color); position: relative; }
+        .name-txt { font-size: 4vw; font-weight: 900; text-transform: uppercase; color: #fff; }
+        .serve-ball { width: 1.5vw; height: 1.5vw; background: var(--padel-yellow); border-radius: 50%; margin-left: 20px; box-shadow: 0 0 15px var(--padel-yellow); display: none; }
+        .set-cell { display: flex; align-items: center; justify-content: center; font-family: 'Orbitron'; font-size: 4.5vw; font-weight: 900; color: #fff; border-right: 1px solid var(--border-color); position: relative; }
+        .tb-score { font-size: 1.8vw; position: absolute; top: 10%; right: 10%; color: #888; font-weight: 700; }
         .set-winner { color: var(--padel-yellow) !important; text-shadow: 0 0 15px rgba(204, 255, 0, 0.4); }
-        .pts-cell { display: flex; align-items: center; justify-content: center; font-family: 'Orbitron'; font-size: 15vw; font-weight: 900; color: var(--padel-blue); background: rgba(0, 210, 255, 0.05); }
+        .pts-cell { display: flex; align-items: center; justify-content: center; font-family: 'Orbitron'; font-size: 14vw; font-weight: 900; color: var(--padel-blue); background: rgba(0, 210, 255, 0.05); }
 
         .footer-match { display: flex; justify-content: space-between; align-items: center; padding: 2vh 2vw; color: #5a6b82; font-size: 1vw; font-weight: 900; text-transform: uppercase; }
         #status-badge { color: var(--padel-yellow); letter-spacing: 5px; animation: blink 1s infinite; display: none; background: rgba(204,255,0,0.1); padding: 10px 30px; border-radius: 10px; border: 2px solid var(--padel-yellow); font-size: 1.5vw; }
 
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); opacity: 0.8; } }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        @keyframes moveTitle { 0%, 100% { transform: translateX(-20px); } 50% { transform: translateX(20px); } }
     </style>
 </head>
 <body>
@@ -50,42 +66,38 @@
         </div>
     </div>
 
-    <div id="setup-screen">
-        <div class="logo-setup">ScoreTrak</div>
-        <div class="setup-sub">Configuration...</div>
-    </div>
+    <div id="setup-screen"><div class="logo-setup">ScoreTrak</div><div class="setup-sub">Configuration...</div></div>
 
     <div id="victory-screen">
         <div class="victory-title">VICTOIRE</div>
         <div id="win-names-tv" style="font-size: 5vw; color: white; text-transform: uppercase; font-weight: 900; margin-top: 20px;"></div>
     </div>
 
+    <div id="final-screen">
+        <div class="final-header">RÉSULTAT DU MATCH</div>
+        <div class="final-table" id="final-table-rows">
+            </div>
+    </div>
+
     <div id="main-ui" class="main-container">
-        <div class="header-row"><div>Joueurs</div><div>S1</div><div>S2</div><div>S3</div><div>Points</div></div>
-        
+        <div class="header-row"><div>Joueurs</div><div>S1</div><div>S2</div><div>S3</div><div>S4</div><div>S5</div><div>Points</div></div>
         <div class="team-row">
-            <div style="display: flex; flex-direction: column; justify-content: center; padding-left: 2vw;">
+            <div style="display: flex; flex-direction: column; justify-content: center; padding-left: 1vw;">
                 <div class="player-line"><span id="nA1" class="name-txt"></span><div id="bA1" class="serve-ball"></div></div>
                 <div class="player-line"><span id="nA2" class="name-txt"></span><div id="bA2" class="serve-ball"></div></div>
             </div>
-            <div id="st1A" class="set-cell"></div><div id="st2A" class="set-cell"></div><div id="st3A" class="set-cell"></div>
+            <div id="st1A" class="set-cell"></div><div id="st2A" class="set-cell"></div><div id="st3A" class="set-cell"></div><div id="st4A" class="set-cell"></div><div id="st5A" class="set-cell"></div>
             <div id="sA" class="pts-cell">0</div>
         </div>
-
         <div class="team-row" style="border:none;">
-            <div style="display: flex; flex-direction: column; justify-content: center; padding-left: 2vw;">
+            <div style="display: flex; flex-direction: column; justify-content: center; padding-left: 1vw;">
                 <div class="player-line"><span id="nB1" class="name-txt"></span><div id="bB1" class="serve-ball"></div></div>
                 <div class="player-line"><span id="nB2" class="name-txt"></span><div id="bB2" class="serve-ball"></div></div>
             </div>
-            <div id="st1B" class="set-cell"></div><div id="st2B" class="set-cell"></div><div id="st3B" class="set-cell"></div>
+            <div id="st1B" class="set-cell"></div><div id="st2B" class="set-cell"></div><div id="st3B" class="set-cell"></div><div id="st4B" class="set-cell"></div><div id="st5B" class="set-cell"></div>
             <div id="sB" class="pts-cell">0</div>
         </div>
-
-        <div class="footer-match">
-            <div>Court N°1 - Live ScoreTrak</div>
-            <div id="status-badge"></div>
-            <div id="clock-tv"></div>
-        </div>
+        <div class="footer-match"><div>Court N°1</div><div id="status-badge"></div><div>Live ScoreTrak</div></div>
     </div>
 
     <script type="module">
@@ -99,65 +111,82 @@
         const urlSmartphone = "https://score-trak.vercel.app/SmartphoneV5.html";
         document.getElementById('qr-code-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(urlSmartphone)}`;
 
+        function formatScoreHTML(val, isWinner, tbVal) {
+            if (val === undefined || val === "") return "";
+            let res = `<span class="${isWinner ? 'set-winner' : ''}">${val}</span>`;
+            if (tbVal !== undefined && tbVal !== "") {
+                res += `<span class="tb-score">${tbVal}</span>`;
+            }
+            return res;
+        }
+
         onValue(ref(db, 'match/terrain1'), (snap) => {
             const d = snap.val();
-            const idle = document.getElementById('idle-screen'), setup = document.getElementById('setup-screen'), main = document.getElementById('main-ui'), victory = document.getElementById('victory-screen'), badge = document.getElementById('status-badge');
+            const idle = document.getElementById('idle-screen'), setup = document.getElementById('setup-screen'), main = document.getElementById('main-ui'), victory = document.getElementById('victory-screen'), final = document.getElementById('final-screen'), badge = document.getElementById('status-badge');
 
-            if (!d || d.status === 'idle') { idle.style.display = 'flex'; setup.style.display = 'none'; main.style.visibility = 'hidden'; victory.style.display = 'none'; return; }
-            if (d.status === 'setup') { idle.style.display = 'none'; setup.style.display = 'flex'; main.style.visibility = 'hidden'; victory.style.display = 'none'; return; }
+            if (!d || d.status === 'idle') { idle.style.display = 'flex'; setup.style.display = 'none'; main.style.visibility = 'hidden'; victory.style.display = 'none'; final.style.display = 'none'; return; }
+            if (d.status === 'setup') { idle.style.display = 'none'; setup.style.display = 'flex'; main.style.visibility = 'hidden'; victory.style.display = 'none'; final.style.display = 'none'; return; }
 
             idle.style.display = 'none'; setup.style.display = 'none';
 
             if (d.winner) {
-                main.style.visibility = 'hidden'; victory.style.display = 'flex';
-                document.getElementById('win-names-tv').innerText = d.winner === 'A' ? `${d.pA1} & ${d.pA2}` : `${d.pB1} & ${d.pB2}`;
+                main.style.visibility = 'hidden';
+                if (victory.style.display !== 'flex' && final.style.display !== 'flex') {
+                    victory.style.display = 'flex';
+                    document.getElementById('win-names-tv').innerText = d.winner === 'A' ? `${d.pA1} & ${d.pA2}` : `${d.pB1} & ${d.pB2}`;
+                    setTimeout(() => {
+                        victory.style.display = 'none';
+                        final.style.display = 'flex';
+                        
+                        let html = `
+                            <div class="final-row ${d.winner === 'A' ? 'final-winner-row' : ''}">
+                                <div class="final-names">${d.pA1} / ${d.pA2}</div>
+                                ${[1,2,3,4,5].map(i => `<div class="final-set-box">${formatScoreHTML(d['s'+i+'A'], (parseInt(d['s'+i+'A'])>parseInt(d['s'+i+'B'])), d['tb'+i+'A'])}</div>`).join('')}
+                            </div>
+                            <div class="final-row ${d.winner === 'B' ? 'final-winner-row' : ''}" style="border:none;">
+                                <div class="final-names">${d.pB1} / ${d.pB2}</div>
+                                ${[1,2,3,4,5].map(i => `<div class="final-set-box">${formatScoreHTML(d['s'+i+'B'], (parseInt(d['s'+i+'B'])>parseInt(d['s'+i+'A'])), d['tb'+i+'B'])}</div>`).join('')}
+                            </div>`;
+                        document.getElementById('final-table-rows').innerHTML = html;
+                    }, 4000);
+                }
                 return;
             }
 
-            main.style.visibility = 'visible'; victory.style.display = 'none';
-
-            document.getElementById('nA1').innerText = d.pA1 || ""; document.getElementById('nA2').innerText = d.pA2 || "";
-            document.getElementById('nB1').innerText = d.pB1 || ""; document.getElementById('nB2').innerText = d.pB2 || "";
+            main.style.visibility = 'visible'; victory.style.display = 'none'; final.style.display = 'none';
+            document.getElementById('nA1').innerText = d.pA1; document.getElementById('nA2').innerText = d.pA2;
+            document.getElementById('nB1').innerText = d.pB1; document.getElementById('nB2').innerText = d.pB2;
 
             const labels = ["0", "15", "30", "40", "AD"];
             const isTB = (d.gamesA === 6 && d.gamesB === 6);
             document.getElementById('sA').innerText = isTB ? d.scoreA : (labels[d.scoreA] || "0");
             document.getElementById('sB').innerText = isTB ? d.scoreB : (labels[d.scoreB] || "0");
 
-            const currentSetIdx = (d.setsA || 0) + (d.setsB || 0) + 1;
-
-            for(let i=1; i<=3; i++) {
-                let valA = d['s'+i+'A'], valB = d['s'+i+'B'];
-                let winA = false, winB = false;
-
-                if (valA !== undefined && valB !== undefined && valA !== "" && valB !== "") {
-                    if (parseInt(valA) > parseInt(valB)) winA = true; else winB = true;
-                } else if (i === currentSetIdx) {
-                    valA = d.gamesA; valB = d.gamesB;
-                } else { valA = ""; valB = ""; }
-
-                document.getElementById(`st${i}A`).innerHTML = `<span class="${winA ? 'set-winner' : ''}">${valA}</span>`;
-                document.getElementById(`st${i}B`).innerHTML = `<span class="${winB ? 'set-winner' : ''}">${valB}</span>`;
+            const curSet = (d.setsA || 0) + (d.setsB || 0) + 1;
+            for(let i=1; i<=5; i++) {
+                let vA = d['s'+i+'A'], vB = d['s'+i+'B'], winA = false, winB = false;
+                if (vA !== undefined && vB !== undefined && vA !== "") {
+                    if (parseInt(vA) > parseInt(vB)) winA = true; else winB = true;
+                } else if (i === curSet) { vA = d.gamesA; vB = d.gamesB; } else { vA = ""; vB = ""; }
+                document.getElementById(`st${i}A`).innerHTML = formatScoreHTML(vA, winA, d['tb'+i+'A']);
+                document.getElementById(`st${i}B`).innerHTML = formatScoreHTML(vB, winB, d['tb'+i+'B']);
             }
 
-            // LOGIQUE BADGES (BALLE DE JEU / SET / MATCH / BREAK)
+            // BADGES
             badge.style.display = "none";
-            const sA = d.scoreA || 0; const sB = d.scoreB || 0;
-            const gA = d.gamesA || 0; const gB = d.gamesB || 0;
-
+            const sA = d.scoreA || 0, sB = d.scoreB || 0, gA = d.gamesA || 0, gB = d.gamesB || 0;
             let potA = (!isTB && ((sA === 3 && sB < 3) || sA === 4)) || (isTB && sA >= 6 && sA > sB);
             let potB = (!isTB && ((sB === 3 && sA < 3) || sB === 4)) || (isTB && sB >= 6 && sB > sA);
             let setA = (isTB) || (gA === 5 && gB <= 4) || (gA === 6 && gB === 5);
             let setB = (isTB) || (gB === 5 && gA <= 4) || (gB === 6 && gA === 5);
-
             if (potA) {
-                if (d.setsA === 1 && setA) badge.innerText = "BALLE DE MATCH";
+                if (d.setsA === d.maxSets - 1 && setA) badge.innerText = "BALLE DE MATCH";
                 else if (setA) badge.innerText = "BALLE DE SET";
                 else if (d.serverTeam === 'B') badge.innerText = "BALLE DE BREAK";
                 else badge.innerText = "BALLE DE JEU";
                 badge.style.display = "block";
             } else if (potB) {
-                if (d.setsB === 1 && setB) badge.innerText = "BALLE DE MATCH";
+                if (d.setsB === d.maxSets - 1 && setB) badge.innerText = "BALLE DE MATCH";
                 else if (setB) badge.innerText = "BALLE DE SET";
                 else if (d.serverTeam === 'A') badge.innerText = "BALLE DE BREAK";
                 else badge.innerText = "BALLE DE JEU";
