@@ -3,36 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ScoreTrak Admin - Hybride V4/V5</title>
+    <title>ScoreTrak Admin</title>
     <style>
         body { font-family: -apple-system, system-ui, sans-serif; background: #000; color: white; text-align: center; margin: 0; padding: 10px; height: 100vh; display: flex; flex-direction: column; box-sizing: border-box; }
         .logo-trak { font-size: 40px; font-weight: 900; color: #ccff00; font-style: italic; margin: 15px 0; letter-spacing: -2px; }
-        
         #init-screen, #setup-screen, #score-screen { display: none; flex-direction: column; align-items: center; justify-content: center; flex: 1; }
-        
-        /* DESIGN V5 DES ENTRÉES */
         .team-input { background: #1a1a1a; padding: 12px; border-radius: 12px; margin-bottom: 8px; border-left: 8px solid; width: 88%; text-align: left; box-sizing: border-box; }
         input, select { width: 92%; padding: 12px; margin: 4px 0; border-radius: 8px; border: none; background: #333; color: white; font-size: 15px; }
-        
         .config-row { background: #1a1a1a; padding: 12px; border-radius: 12px; width: 88%; margin-bottom: 10px; text-align: left; box-sizing: border-box; }
-        label { font-size: 11px; color: #888; margin-left: 5px; text-transform: uppercase; }
-
-        /* COMPOSANTS SPECIFIQUES V5 */
+        label { font-size: 11px; color: #888; text-transform: uppercase; }
         .share-card { background: #1a1a1a; padding: 15px; border-radius: 15px; width: 88%; margin: 10px 0; border: 1px solid #333; box-sizing: border-box; }
         .btn-share { background: #ccff00; color: black; padding: 12px; border: none; border-radius: 10px; width: 100%; font-weight: bold; text-transform: uppercase; font-size: 12px; margin-bottom: 10px; }
         .warning-box { background: rgba(255, 204, 0, 0.05); border: 1px solid #ffcc00; border-radius: 8px; padding: 8px; text-align: left; }
         .warning-box p { color: #ccc; font-size: 10px; margin: 0; line-height: 1.3; }
-
-        /* BOUTONS D'ACTION */
         .btn-start { background: #ccff00; color: black; padding: 18px; border: none; border-radius: 15px; width: 88%; font-weight: bold; text-transform: uppercase; margin-top: 10px; font-size: 16px; }
-        .btn-point { width: 92%; padding: 35px 0; border: none; border-radius: 20px; color: white; font-size: 20px; font-weight: bold; text-transform: uppercase; margin: 8px 0; transition: transform 0.1s; }
-        .btn-point:active { transform: scale(0.98); }
-        
-        .vert { background: #2E7D32; } 
-        .bleu { background: #1565C0; }
+        .btn-point { width: 92%; padding: 35px 0; border: none; border-radius: 20px; color: white; font-size: 20px; font-weight: bold; text-transform: uppercase; margin: 8px 0; }
+        .vert { background: #2E7D32; } .bleu { background: #1565C0; }
         .serving { border: 4px solid #ccff00; box-shadow: 0 0 20px rgba(204, 255, 0, 0.4); }
-
-        .btn-action { background: #333; color: white; padding: 15px; border: none; border-radius: 12px; width: 44%; margin: 5px; font-weight: bold; text-transform: uppercase; font-size: 12px; }
+        .btn-action { background: #333; color: white; padding: 15px; border: none; border-radius: 12px; width: 44%; margin: 5px; font-weight: bold; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -40,49 +28,28 @@
     <div id="init-screen" style="display: flex;">
         <div class="logo-trak">ScoreTrak</div>
         <button class="btn-start" onclick="goToSetup()">PRÉPARER LE MATCH</button>
-        <p style="color: #444; margin-top: 20px; font-size: 11px;">SYSTÈME D'ARBITRAGE CONNECTÉ</p>
     </div>
 
     <div id="setup-screen">
-        <div class="logo-trak" style="font-size: 22px; margin: 10px 0;">Configuration</div>
-        
-        <div class="team-input" style="border-color: #4CAF50;">
-            <input type="text" id="pA1" placeholder="Joueur Vert 1 (Serveur)">
-            <input type="text" id="pA2" placeholder="Joueur Vert 2">
-        </div>
-        
-        <div class="team-input" style="border-color: #2196F3;">
-            <input type="text" id="pB1" placeholder="Joueur Bleu 1 (Serveur)">
-            <input type="text" id="pB2" placeholder="Joueur Bleu 2">
-        </div>
-
+        <div class="logo-trak" style="font-size: 22px;">Configuration</div>
+        <div class="team-input" style="border-color: #4CAF50;"><input type="text" id="pA1" placeholder="Vert 1"><input type="text" id="pA2" placeholder="Vert 2"></div>
+        <div class="team-input" style="border-color: #2196F3;"><input type="text" id="pB1" placeholder="Bleu 1"><input type="text" id="pB2" placeholder="Bleu 2"></div>
         <div class="config-row">
             <label>Qui engage ?</label>
             <select id="firstTeam"><option value="A">ÉQUIPE VERTE</option><option value="B">ÉQUIPE BLEUE</option></select>
-            
-            <label>Règle de score</label>
-            <select id="gameRule"><option value="decisif">POINT DÉCISIF (NO-AD)</option><option value="avantage">AVANTAGE (DEUCE)</option></select>
-            
             <label>Format</label>
             <select id="maxSets"><option value="2">2 SETS GAGNANTS</option><option value="3">3 SETS GAGNANTS</option></select>
         </div>
-        
         <div class="share-card">
             <button class="btn-share" onclick="shareToWatch()">🔗 Envoyer le lien à ma montre</button>
-            <div class="warning-box">
-                <p><b style="color:#ffcc00">APPLE WATCH :</b> Ouvrez le lien via l'app <b>Messages</b> pour un fonctionnement optimal.</p>
-            </div>
+            <div class="warning-box"><p><b style="color:#ffcc00">APPLE WATCH :</b> Ouvrez le lien via l'app <b>Messages</b>.</p></div>
         </div>
-        
         <button class="btn-start" onclick="startMatch()">LANCER LE MATCH</button>
     </div>
 
     <div id="score-screen">
-        <div class="logo-trak" style="font-size: 20px; margin: 10px 0;">Match en cours</div>
-        
         <button id="btnA" class="btn-point vert" onclick="addPoint('scoreA')"></button>
         <button id="btnB" class="btn-point bleu" onclick="addPoint('scoreB')"></button>
-        
         <div style="display: flex; justify-content: center; width: 100%; margin-top: 15px;">
             <button class="btn-action" onclick="undo()">↩ ANNULER</button>
             <button class="btn-action" style="background: #800;" onclick="resetMatch()">⚠ RESET</button>
@@ -99,41 +66,31 @@
         const matchRef = ref(db, 'match/terrain1');
         const historyRef = ref(db, 'history/terrain1');
 
-        // NAVIGATION ET MISE À JOUR UI
         onValue(matchRef, (snap) => {
             const d = snap.val();
             const init = document.getElementById('init-screen'), setup = document.getElementById('setup-screen'), score = document.getElementById('score-screen');
-            
-            if (!d || d.status === 'idle') { 
-                init.style.display = 'flex'; setup.style.display = 'none'; score.style.display = 'none'; 
-            } else if (d.status === 'setup') { 
-                init.style.display = 'none'; setup.style.display = 'flex'; score.style.display = 'none'; 
-            } else if (d.status === 'active') {
+            if (!d || d.status === 'idle') { init.style.display = 'flex'; setup.style.display = 'none'; score.style.display = 'none'; }
+            else if (d.status === 'setup') { init.style.display = 'none'; setup.style.display = 'flex'; score.style.display = 'none'; }
+            else if (d.status === 'active') {
                 init.style.display = 'none'; setup.style.display = 'none'; score.style.display = 'flex';
                 document.getElementById('btnA').innerHTML = `${d.pA1}<br>${d.pA2}`;
                 document.getElementById('btnB').innerHTML = `${d.pB1}<br>${d.pB2}`;
-                // Mise à jour de l'indicateur de service (V4)
                 document.getElementById('btnA').classList.toggle('serving', d.serverTeam === 'A');
                 document.getElementById('btnB').classList.toggle('serving', d.serverTeam === 'B');
             }
         });
 
-        window.goToSetup = () => update(matchRef, { status: 'setup', active: false });
-        
-        window.shareToWatch = async () => {
-            const watchLink = window.location.href.replace('admin', 'watch'); // Ajustez selon vos noms de fichiers
-            if (navigator.share) {
-                try { await navigator.share({ title: 'ScoreTrak Watch', url: watchLink }); } catch (err) {}
-            } else { navigator.clipboard.writeText(watchLink); alert("Lien copié !"); }
+        window.goToSetup = () => update(matchRef, { status: 'setup' });
+        window.shareToWatch = () => {
+            const watchLink = window.location.href.replace('admin', 'watch');
+            if (navigator.share) navigator.share({ title: 'Watch', url: watchLink });
+            else { navigator.clipboard.writeText(watchLink); alert("Lien copié !"); }
         };
-
-        // --- LOGIQUE INTÉGRALE V4 ---
 
         window.startMatch = () => {
             remove(historyRef);
             set(matchRef, {
-                status: 'active', active: true, winner: null,
-                rule: document.getElementById('gameRule').value,
+                status: 'active', winner: null, rule: 'decisif',
                 maxSets: parseInt(document.getElementById('maxSets').value),
                 pA1: document.getElementById('pA1').value || "VERT 1", pA2: document.getElementById('pA2').value || "VERT 2",
                 pB1: document.getElementById('pB1').value || "BLEU 1", pB2: document.getElementById('pB2').value || "BLEU 2",
@@ -143,36 +100,26 @@
         };
 
         window.addPoint = async (team) => {
-            const snap = await get(matchRef);
-            let d = snap.val();
+            const snap = await get(matchRef); let d = snap.val();
             if (!d || d.winner) return;
             await push(historyRef, JSON.stringify(d));
-            
             const other = (team === 'scoreA') ? 'scoreB' : 'scoreA';
 
-            if (d.gamesA === 6 && d.gamesB === 6) { // Tie-break
+            if (d.gamesA === 6 && d.gamesB === 6) {
                 d[team]++;
                 let tt = d.scoreA + d.scoreB;
                 if (tt % 2 === 1) d.serverTeam = (d.serverTeam === 'A' ? 'B' : 'A');
                 d.serverNum = (Math.floor(tt / 2) % 2) + 1;
                 if (d[team] >= 7 && (d[team] - d[other]) >= 2) winGame(d, team);
             } else {
-                if (d.rule === 'decisif') { 
-                    if (d[team] === 3) winGame(d, team); else d[team]++; 
-                } else {
-                    if (d[team] < 3) d[team]++;
-                    else if (d[team] === 3 && d[other] < 3) winGame(d, team);
-                    else if (d[team] === 3 && d[other] === 3) d[team] = 4; // Avantage
-                    else if (d[team] === 4) winGame(d, team);
-                    else if (d[team] === 3 && d[other] === 4) d[other] = 3; // Retour à Égalité
-                }
+                if (d[team] === 3) winGame(d, team); else d[team]++;
             }
             set(matchRef, d);
         };
 
         function winGame(d, team) {
-            d.scoreA = 0; d.scoreB = 0; 
-            d[team === 'scoreA' ? 'gamesA' : 'gamesB']++; 
+            d.scoreA = 0; d.scoreB = 0;
+            d[team === 'scoreA' ? 'gamesA' : 'gamesB']++;
             d.totalGames++;
             d.serverTeam = (d.serverTeam === 'A' ? 'B' : 'A');
             d.serverNum = (Math.floor(d.totalGames / 2) % 2) + 1;
@@ -180,6 +127,9 @@
         }
 
         function finishSet(d, team) {
+            const currentSetIdx = (d.setsA || 0) + (d.setsB || 0) + 1;
+            d['s' + currentSetIdx + 'A'] = d.gamesA;
+            d['s' + currentSetIdx + 'B'] = d.gamesB;
             d.gamesA = 0; d.gamesB = 0; d.scoreA = 0; d.scoreB = 0; d.totalGames = 0;
             d[team === 'scoreA' ? 'setsA' : 'setsB']++;
             if (d.setsA >= d.maxSets) d.winner = 'A';
@@ -195,12 +145,7 @@
             }
         };
 
-        window.resetMatch = () => {
-            if(confirm("Voulez-vous vraiment réinitialiser le match ?")) {
-                set(matchRef, { status: 'idle', active: false });
-                remove(historyRef);
-            }
-        };
+        window.resetMatch = () => { if(confirm("RESET ?")) set(matchRef, { status: 'idle' }); };
     </script>
 </body>
 </html>
