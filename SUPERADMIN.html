@@ -4,76 +4,61 @@
     <meta charset="UTF-8">
     <title>ScoreTrak - Super Admin</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Roboto:wght@400;700;900&display=swap');
-        :root { --padel-yellow: #ccff00; --padel-blue: #00d2ff; --bg: #000; --card: #0a0a0a; --border: #222; }
-        body { background: var(--bg); color: white; font-family: 'Roboto', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        #sidebar { width: 260px; background: #050505; border-right: 1px solid var(--border); padding: 25px; display: flex; flex-direction: column; }
-        .logo { font-family: 'Orbitron'; color: var(--padel-yellow); font-size: 22px; margin-bottom: 40px; font-style: italic; font-weight: 900; }
-        .nav-item { padding: 14px; cursor: pointer; border-radius: 10px; margin-bottom: 8px; color: #666; transition: 0.3s; font-weight: bold; }
-        .nav-item.active { background: var(--padel-yellow); color: #000; }
-        #main { flex: 1; padding: 40px; overflow-y: auto; }
-        .view { display: none; } .view.active { display: block; }
-        .club-card { background: var(--card); border: 1px solid var(--border); border-radius: 15px; padding: 20px; margin-bottom: 20px; }
-        .court-row { display: flex; justify-content: space-between; align-items: center; background: #111; padding: 10px; border-radius: 8px; margin-bottom: 5px; border: 1px solid #222; }
-        button { cursor: pointer; font-weight: bold; border: none; border-radius: 5px; }
-        .btn-link { background: var(--padel-blue); color: #000; padding: 5px 10px; font-size: 11px; }
-        .primary { background: var(--padel-yellow); padding: 12px 20px; border-radius: 8px; }
-        input { background: #000; border: 1px solid #333; padding: 12px; color: white; border-radius: 8px; width: 100%; box-sizing: border-box; margin-bottom: 10px; }
-        #login-overlay { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; justify-content: center; align-items: center; }
-        .login-box { background: #0a0a0a; padding: 40px; border-radius: 20px; border: 1px solid var(--padel-yellow); text-align: center; }
-        .monitor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .monitor-card { background: var(--card); padding: 15px; border-radius: 15px; border: 1px solid var(--border); }
-        .monitor-card.live { border-color: var(--padel-yellow); }
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Roboto:wght@400;700&display=swap');
+        body { background: #000; color: white; font-family: 'Roboto', sans-serif; padding: 30px; }
+        .card { background: #0a0a0a; border: 1px solid #222; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
+        .logo { font-family: 'Orbitron'; color: #ccff00; font-size: 24px; font-weight: 900; margin-bottom: 30px; }
+        .court-row { display: flex; justify-content: space-between; align-items: center; background: #111; padding: 10px; border-radius: 10px; margin-top: 10px; border: 1px solid #333; }
+        button { cursor: pointer; border: none; font-weight: bold; border-radius: 5px; padding: 10px; }
+        .btn-tv { background: #00d2ff; color: #000; margin-right: 5px; }
+        .btn-add { background: #ccff00; color: #000; margin-top: 10px; width: 100%; }
+        input { background: #000; color: #fff; border: 1px solid #333; padding: 10px; border-radius: 5px; width: 100%; box-sizing: border-box; }
     </style>
 </head>
 <body>
-    <div id="login-overlay"><div class="login-box"><div class="logo">ScoreTrak Admin</div><input type="text" id="u" placeholder="Admin"><input type="password" id="p" placeholder="Password"><button class="primary" onclick="login()" style="width:100%">ENTRER</button></div></div>
-    <div id="sidebar">
-        <div class="logo">ScoreTrak</div>
-        <div class="nav-item active" onclick="show('dash')">📊 Dashboard</div>
-        <div class="nav-item" onclick="show('conf')">⚙️ Configuration</div>
+    <div class="logo">ScoreTrak Admin</div>
+    
+    <div class="card" style="border-color: #ccff00;">
+        <h3>Nouveau Club</h3>
+        <input type="text" id="clubName" placeholder="Nom du Club">
+        <button class="btn-add" onclick="createClub()">CRÉER LE CLUB</button>
     </div>
-    <div id="main">
-        <div id="view-dash" class="view active"><h1>LIVE MONITORING</h1><div class="monitor-grid" id="mon-list"></div></div>
-        <div id="view-conf" class="view">
-            <h1>GESTION DES CLUBS</h1>
-            <div class="club-card" style="border-color: var(--padel-yellow);"><input type="text" id="club-n" placeholder="Nom du Club"><button class="primary" onclick="addClub()">CRÉER CLUB</button></div>
-            <div id="club-list"></div>
-        </div>
-    </div>
+
+    <div id="display"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, set, push, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-        const fb = { apiKey: "AIzaSyCjlHL7GEXFvnrNzZAIEZyl-WCqUI3txiM", authDomain: "scoretrak-123.firebaseapp.com", databaseURL: "https://scoretrak-123-default-rtdb.europe-west1.firebasedatabase.app", projectId: "scoretrak-123" };
-        const app = initializeApp(fb); const db = getDatabase(app);
-        let data = {}; const TV_BASE = "https://score-trak.vercel.app/PUB.html";
+        import { getDatabase, ref, onValue, push, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        
+        const fbConfig = { apiKey: "AIzaSyCjlHL7GEXFvnrNzZAIEZyl-WCqUI3txiM", authDomain: "scoretrak-123.firebaseapp.com", databaseURL: "https://scoretrak-123-default-rtdb.europe-west1.firebasedatabase.app", projectId: "scoretrak-123" };
+        const app = initializeApp(fbConfig); const db = getDatabase(app);
 
-        window.login = () => { if(document.getElementById('u').value==='master' && document.getElementById('p').value==='score2026') { document.getElementById('login-overlay').style.display='none'; sync(); } };
-        window.show = (v) => { document.querySelectorAll('.view').forEach(s=>s.classList.remove('active')); document.getElementById('view-'+v).classList.add('active'); };
+        const BASE_TV = "https://score-trak.vercel.app/PUB.html";
 
-        function sync() { onValue(ref(db, 'clubs'), snap => { data = snap.val() || {}; render(); }); }
-
-        function render() {
-            const mon = document.getElementById('mon-list'), list = document.getElementById('club-list');
-            mon.innerHTML = ""; list.innerHTML = "";
-            Object.keys(data).forEach(cid => {
-                const club = data[cid];
-                let courtsHtml = "";
-                if(club.courts) { Object.keys(club.courts).forEach(tid => {
-                    const c = club.courts[tid]; const url = `${TV_BASE}?clubId=${cid}&courtId=${tid}`;
-                    courtsHtml += `<div class="court-row"><span>${c.name}</span><button class="btn-link" onclick="copy('${url}')">🔗 LIEN TV</button></div>`;
-                    mon.innerHTML += `<div class="monitor-card ${c.status==='active'?'live':''}"><b>${club.name}</b><br>${c.name}<br><span style="color:var(--padel-blue)">${c.gamesA||0} - ${c.gamesB||0}</span></div>`;
-                });}
-                list.innerHTML += `<div class="club-card"><h3>${club.name}</h3>${courtsHtml}<div style="display:flex;gap:10px;margin-top:10px"><input type="text" id="in-${cid}" placeholder="Nom terrain"><button class="primary" onclick="addCourt('${cid}')">+</button></div></div>`;
+        onValue(ref(db, 'clubs'), snap => {
+            const clubs = snap.val() || {};
+            const out = document.getElementById('display'); out.innerHTML = "";
+            Object.keys(clubs).forEach(clubId => {
+                const club = clubs[clubId];
+                let courts = "";
+                if(club.courts) {
+                    Object.keys(club.courts).forEach(courtId => {
+                        const url = `${BASE_TV}?clubId=${clubId}&courtId=${courtId}`;
+                        courts += `<div class="court-row"><span>${club.courts[courtId].name}</span><button class="btn-tv" onclick="copy('${url}')">🔗 COPIER LIEN TV</button></div>`;
+                    });
+                }
+                out.innerHTML += `<div class="card"><h2>${club.name}</h2>${courts}<div style="margin-top:15px;"><input type="text" id="in-${clubId}" placeholder="Nom terrain"><button class="btn-add" onclick="addCourt('${clubId}')">AJOUTER TERRAIN</button></div></div>`;
             });
-        }
-        window.addClub = () => { const n = document.getElementById('club-n').value; if(n) push(ref(db, 'clubs'), {name:n}); };
-        window.addCourt = (cid) => {
-            const n = document.getElementById('in-'+cid).value;
-            if(n) push(ref(db, `clubs/${cid}/courts`), { name:n, status:'idle', scoreA:0, scoreB:0, gamesA:0, gamesB:0, setsA:0, setsB:0, serverTeam:'A', pA1:'?', pA2:'?', pB1:'?', pB2:'?' });
+        });
+
+        window.createClub = () => { const n = document.getElementById('clubName').value; if(n) push(ref(db, 'clubs'), {name: n}); };
+        window.addCourt = (clubId) => {
+            const n = document.getElementById('in-'+clubId).value;
+            if(n) push(ref(db, `clubs/${clubId}/courts`), { 
+                name: n, status: 'idle', pA1:"V1", pA2:"V2", pB1:"B1", pB2:"B2", scoreA:0, scoreB:0, gamesA:0, gamesB:0, setsA:0, setsB:0, serverTeam:'A' 
+            });
         };
-        window.copy = (t) => { navigator.clipboard.writeText(t); alert("URL Copiée !"); };
+        window.copy = (t) => { navigator.clipboard.writeText(t); alert("Lien TV Copié !"); };
     </script>
 </body>
 </html>
