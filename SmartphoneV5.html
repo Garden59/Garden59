@@ -2,159 +2,125 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ScoreTrak Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>ScoreTrak Remote</title>
     <style>
-        body { font-family: system-ui, sans-serif; background: #000; color: white; text-align: center; margin: 0; padding: 10px; height: 100vh; display: flex; flex-direction: column; box-sizing: border-box; }
-        .logo-trak { font-size: 40px; font-weight: 900; color: #ccff00; font-style: italic; margin: 15px 0; letter-spacing: -2px; }
-        #init-screen, #setup-screen, #score-screen { display: none; flex-direction: column; align-items: center; justify-content: center; flex: 1; }
-        .team-input { background: #1a1a1a; padding: 12px; border-radius: 12px; margin-bottom: 8px; border-left: 8px solid; width: 88%; text-align: left; }
-        input, select { width: 92%; padding: 12px; margin: 4px 0; border-radius: 8px; border: none; background: #333; color: white; font-size: 15px; }
-        .config-row { background: #1a1a1a; padding: 12px; border-radius: 12px; width: 88%; margin-bottom: 10px; text-align: left; }
-        label { font-size: 11px; color: #888; text-transform: uppercase; margin-left: 5px; }
-        .share-card { background: #1a1a1a; padding: 15px; border-radius: 15px; width: 88%; margin: 10px 0; border: 1px solid #333; }
-        .btn-share { background: #ccff00; color: black; padding: 12px; border: none; border-radius: 10px; width: 100%; font-weight: bold; text-transform: uppercase; font-size: 12px; margin-bottom: 10px; }
-        .warning-box { background: rgba(255, 204, 0, 0.05); border: 1px solid #ffcc00; border-radius: 8px; padding: 8px; text-align: left; }
-        .btn-start { background: #ccff00; color: black; padding: 18px; border: none; border-radius: 15px; width: 88%; font-weight: bold; text-transform: uppercase; font-size: 16px; margin-top: 10px; }
-        .btn-point { width: 92%; padding: 35px 0; border: none; border-radius: 20px; color: white; font-size: 20px; font-weight: bold; text-transform: uppercase; margin: 8px 0; }
+        body { background:#000; color:#fff; font-family:sans-serif; text-align:center; margin:0; padding:15px; }
+        #court-info { background: #ccff00; color: #000; padding: 10px; font-weight: 900; font-size: 12px; text-transform: uppercase; margin-bottom: 20px; border-radius: 0 0 15px 15px; }
+        .setup-box { background: #111; border: 1px solid #333; padding: 20px; border-radius: 20px; }
+        input { width: 90%; padding: 15px; margin: 8px 0; border-radius: 12px; border: none; background: #222; color: #fff; font-size: 16px; }
+        .btn-main { background: #ccff00; color: #000; padding: 20px; width: 90%; border-radius: 15px; font-weight: bold; border: none; font-size: 18px; margin-top: 20px; }
+        .btn-point { width: 100%; padding: 40px 0; border: none; border-radius: 20px; color: #fff; font-size: 24px; font-weight: bold; margin: 10px 0; }
         .vert { background: #2E7D32; } .bleu { background: #1565C0; }
-        .serving { border: 4px solid #ccff00; }
-        .btn-action { background: #333; color: white; padding: 15px; border: none; border-radius: 12px; width: 44%; margin: 5px; font-weight: bold; font-size: 12px; }
+        .serving { border: 5px solid #ccff00; box-shadow: 0 0 15px #ccff00; }
     </style>
 </head>
 <body>
 
-    <div id="init-screen" style="display: flex;">
-        <div class="logo-trak">ScoreTrak</div>
-        <button class="btn-start" onclick="goToSetup()">PRÉPARER LE MATCH</button>
+    <div id="court-info">Connexion au terrain...</div>
+
+    <div id="view-setup" style="display:none;">
+        <h2 style="color:#ccff00; letter-spacing: -1px;">PRÉPARATION</h2>
+        <div class="setup-box">
+            <input type="text" id="pA1" placeholder="Vert 1">
+            <input type="text" id="pA2" placeholder="Vert 2">
+            <hr style="border:0; border-top:1px solid #333; margin:10px 0;">
+            <input type="text" id="pB1" placeholder="Bleu 1">
+            <input type="text" id="pB2" placeholder="Bleu 2">
+        </div>
+        <button class="btn-main" onclick="startMatch()">LANCER LE MATCH</button>
     </div>
 
-    <div id="setup-screen">
-        <div class="logo-trak" style="font-size: 22px;">Configuration</div>
-        <div class="team-input" style="border-color: #4CAF50;"><input type="text" id="pA1" placeholder="Vert 1"><input type="text" id="pA2" placeholder="Vert 2"></div>
-        <div class="team-input" style="border-color: #2196F3;"><input type="text" id="pB1" placeholder="Bleu 1"><input type="text" id="pB2" placeholder="Bleu 2"></div>
-        <div class="config-row">
-            <label>Engagement</label><select id="firstTeam"><option value="A">SERV. VERT</option><option value="B">SERV. BLEU</option></select>
-            <label>Règle 40-40</label><select id="rule"><option value="decisif">POINT DÉCISIF</option><option value="avantage">AVANTAGE</option></select>
-            <label>Format</label><select id="maxSets"><option value="2">2 SETS GAGNANTS</option><option value="3">3 SETS GAGNANTS</option></select>
-        </div>
-        <div class="share-card">
-            <button class="btn-share" onclick="shareToWatch()">🔗 Envoyer le lien à ma montre</button>
-            <div class="warning-box"><p><b style="color:#ffcc00">APPLE WATCH :</b> Ouvrez le lien via l'app <b>Messages</b> pour un fonctionnement optimal.</p></div>
-        </div>
-        <button class="btn-start" onclick="startMatch()">LANCER</button>
-    </div>
-
-    <div id="score-screen">
+    <div id="view-score" style="display:none;">
         <button id="btnA" class="btn-point vert" onclick="addPoint('scoreA')"></button>
         <button id="btnB" class="btn-point bleu" onclick="addPoint('scoreB')"></button>
-        <div style="display: flex; width: 100%; justify-content: center; margin-top: 15px;">
-            <button class="btn-action" onclick="undo()">↩ ANNULER</button>
-            <button class="btn-action" style="background: #800;" onclick="resetMatch()">⚠ RESET</button>
-        </div>
+        <button onclick="resetMatch()" style="background:#300; color:#f44; border:none; padding:15px; border-radius:10px; margin-top:30px; font-weight:bold; font-size:11px;">RÉINITIALISER (QUITTER LE MATCH)</button>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, get, onValue, update, remove, push, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, set, get, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        
+        const fbConfig = { apiKey: "AIzaSyCjlHL7GEXFvnrNzZAIEZyl-WCqUI3txiM", authDomain: "scoretrak-123.firebaseapp.com", databaseURL: "https://scoretrak-123-default-rtdb.europe-west1.firebasedatabase.app", projectId: "scoretrak-123" };
+        const app = initializeApp(fbConfig); const db = getDatabase(app);
 
-        const firebaseConfig = { apiKey: "AIzaSyCjlHL7GEXFvnrNzZAIEZyl-WCqUI3txiM", authDomain: "scoretrak-123.firebaseapp.com", databaseURL: "https://scoretrak-123-default-rtdb.europe-west1.firebasedatabase.app", projectId: "scoretrak-123" };
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const matchRef = ref(db, 'match/terrain1');
-        const historyRef = ref(db, 'history/terrain1');
+        const params = new URLSearchParams(window.location.search);
+        const clubId = params.get('clubId');
+        const courtId = params.get('courtId');
 
-        onValue(matchRef, (snap) => {
+        if(!clubId || !courtId) {
+            document.body.innerHTML = "<h2 style='color:red; padding:40px;'>ERREUR D'IDENTIFIANTS<br><small>Scannez le QR Code sur la TV</small></h2>";
+        }
+
+        const mRef = ref(db, `clubs/${clubId}/courts/${courtId}`);
+
+        // --- SYNCHRONISATION EN DIRECT ---
+        onValue(mRef, (snap) => {
             const d = snap.val();
-            const init = document.getElementById('init-screen'), setup = document.getElementById('setup-screen'), score = document.getElementById('score-screen');
-            if (!d || d.status === 'idle') { init.style.display = 'flex'; setup.style.display = 'none'; score.style.display = 'none'; }
-            else if (d.status === 'setup') { init.style.display = 'none'; setup.style.display = 'flex'; score.style.display = 'none'; }
-            else if (d.status === 'active') {
-                init.style.display = 'none'; setup.style.display = 'none'; score.style.display = 'flex';
+            if(!d) return;
+
+            // Mise à jour du bandeau haut
+            document.getElementById('court-info').innerText = d.name || "Terrain Connecté";
+
+            // LOGIQUE DE COMMANDE TV : 
+            // Si le terrain est en mode 'idle' (Pub), on force le passage en 'setup'
+            // pour que la TV quitte les publicités dès que le smartphone est ouvert.
+            if (d.status === 'idle') {
+                update(mRef, { status: 'setup' });
+                return; 
+            }
+
+            const setupView = document.getElementById('view-setup');
+            const scoreView = document.getElementById('view-score');
+
+            if(d.status === 'active') {
+                setupView.style.display = 'none';
+                scoreView.style.display = 'block';
                 document.getElementById('btnA').innerHTML = `${d.pA1}<br>${d.pA2}`;
                 document.getElementById('btnB').innerHTML = `${d.pB1}<br>${d.pB2}`;
-                document.getElementById('btnA').classList.toggle('serving', d.serverTeam === 'A');
-                document.getElementById('btnB').classList.toggle('serving', d.serverTeam === 'B');
+                document.getElementById('btnA').classList.toggle('serving', d.serverTeam==='A');
+                document.getElementById('btnB').classList.toggle('serving', d.serverTeam==='B');
+            } else {
+                setupView.style.display = 'block';
+                scoreView.style.display = 'none';
             }
         });
 
-        window.goToSetup = () => update(matchRef, { status: 'setup' });
-        window.shareToWatch = () => {
-            const url = window.location.href.replace('smartphonev4', 'watch');
-            if (navigator.share) navigator.share({ title: 'Watch', url: url }); else { navigator.clipboard.writeText(url); alert("Lien copié"); }
-        };
-
+        // --- ACTIONS ---
         window.startMatch = () => {
-            remove(historyRef);
-            set(matchRef, {
-                status: 'active', winner: null,
-                rule: document.getElementById('rule').value,
-                maxSets: parseInt(document.getElementById('maxSets').value),
-                pA1: document.getElementById('pA1').value || "VERT 1", pA2: document.getElementById('pA2').value || "VERT 2",
-                pB1: document.getElementById('pB1').value || "BLEU 1", pB2: document.getElementById('pB2').value || "BLEU 2",
+            update(mRef, {
+                status: 'active',
+                pA1: document.getElementById('pA1').value || "JOUEUR 1",
+                pA2: document.getElementById('pA2').value || "JOUEUR 2",
+                pB1: document.getElementById('pB1').value || "JOUEUR 1",
+                pB2: document.getElementById('pB2').value || "JOUEUR 2",
                 scoreA: 0, scoreB: 0, gamesA: 0, gamesB: 0, setsA: 0, setsB: 0,
-                serverTeam: document.getElementById('firstTeam').value, serverNum: 1, totalGames: 0
+                serverTeam: 'A', serverNum: 1, maxSets: 2, winner: null
             });
         };
 
         window.addPoint = async (team) => {
-            const snap = await get(matchRef); let d = snap.val();
-            if (!d || d.winner) return;
-            await push(historyRef, JSON.stringify(d));
+            const snap = await get(mRef);
+            let d = snap.val();
+            if(!d || d.winner) return;
+            
+            // Logique de point simplifiée pour le test
             const other = (team === 'scoreA') ? 'scoreB' : 'scoreA';
-
-            if (d.gamesA === 6 && d.gamesB === 6) {
-                d[team]++;
-                let tt = d.scoreA + d.scoreB;
-                if (tt % 2 === 1) d.serverTeam = (d.serverTeam === 'A' ? 'B' : 'A');
-                d.serverNum = (Math.floor(tt / 2) % 2) + 1;
-                if (d[team] >= 7 && (d[team] - d[other]) >= 2) winGame(d, team);
+            if (d[team] === 3) { // Victoire de jeu sur 40-xx
+                d.scoreA = 0; d.scoreB = 0;
+                d[team === 'scoreA' ? 'gamesA' : 'gamesB']++;
+                d.serverTeam = d.serverTeam === 'A' ? 'B' : 'A';
             } else {
-                if (d.rule === 'decisif') {
-                    if (d[team] === 3) winGame(d, team); else d[team]++;
-                } else {
-                    if (d[team] < 3) d[team]++;
-                    else if (d[team] === 3 && d[other] < 3) winGame(d, team);
-                    else if (d[team] === 3 && d[other] === 3) d[team] = 4;
-                    else if (d[team] === 4) winGame(d, team);
-                    else if (d[team] === 3 && d[other] === 4) d[other] = 3;
-                }
+                d[team]++;
             }
-            set(matchRef, d);
+            set(mRef, d);
         };
 
-        function winGame(d, team) {
-            const curIdx = (d.setsA || 0) + (d.setsB || 0) + 1;
-            if (d.gamesA === 6 && d.gamesB === 6) {
-                d['tb' + curIdx + 'A'] = d.scoreA; d['tb' + curIdx + 'B'] = d.scoreB;
-            }
-            d.scoreA = 0; d.scoreB = 0;
-            d[team === 'scoreA' ? 'gamesA' : 'gamesB']++;
-            d.totalGames++;
-            d.serverTeam = (d.serverTeam === 'A' ? 'B' : 'A');
-            d.serverNum = (Math.floor(d.totalGames / 2) % 2) + 1;
-            if (((d.gamesA >= 6 || d.gamesB >= 6) && Math.abs(d.gamesA - d.gamesB) >= 2) || d.gamesA === 7 || d.gamesB === 7) finishSet(d, team);
-        }
-
-        function finishSet(d, team) {
-            const idx = (d.setsA || 0) + (d.setsB || 0) + 1;
-            d['s' + idx + 'A'] = d.gamesA; d['s' + idx + 'B'] = d.gamesB;
-            d.gamesA = 0; d.gamesB = 0; d.scoreA = 0; d.scoreB = 0; d.totalGames = 0;
-            d[team === 'scoreA' ? 'setsA' : 'setsB']++;
-            if (d.setsA >= d.maxSets) d.winner = 'A';
-            if (d.setsB >= d.maxSets) d.winner = 'B';
-        }
-
-        window.undo = async () => {
-            const hSnap = await get(query(historyRef, limitToLast(1)));
-            if (hSnap.exists()) {
-                const key = Object.keys(hSnap.val())[0];
-                set(matchRef, JSON.parse(hSnap.val()[key]));
-                remove(ref(db, `history/terrain1/${key}`));
+        window.resetMatch = () => {
+            if(confirm("Voulez-vous quitter le match et remettre la TV en veille ?")) {
+                update(mRef, { status: 'idle', winner: null });
             }
         };
-
-        window.resetMatch = () => { if(confirm("RESET ?")) set(matchRef, { status: 'idle' }); };
     </script>
 </body>
 </html>
