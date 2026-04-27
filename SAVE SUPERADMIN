@@ -1,1 +1,235 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>ScoreTrak - Super Admin Console</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Roboto:wght@400;700;900&display=swap');
+        :root { --padel-yellow: #ccff00; --padel-blue: #00d2ff; --bg: #000; --card: #0a0a0a; --border: #222; }
+        
+        body { background: var(--bg); color: white; font-family: 'Roboto', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        
+        /* SIDEBAR */
+        #sidebar { width: 260px; background: #050505; border-right: 1px solid var(--border); padding: 25px; display: flex; flex-direction: column; }
+        .logo { font-family: 'Orbitron'; color: var(--padel-yellow); font-size: 22px; margin-bottom: 40px; font-style: italic; font-weight: 900; }
+        .nav-item { padding: 14px; cursor: pointer; border-radius: 10px; margin-bottom: 8px; color: #666; transition: 0.3s; font-weight: bold; }
+        .nav-item.active { background: var(--padel-yellow); color: #000; }
+        .nav-item:hover:not(.active) { color: #fff; background: #111; }
 
+        #main { flex: 1; padding: 40px; overflow-y: auto; background: linear-gradient(135deg, #000 0%, #050505 100%); }
+        .view { display: none; } .view.active { display: block; }
+
+        /* DASHBOARD LIVE */
+        .monitor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        .monitor-card { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid var(--border); transition: 0.3s; }
+        .monitor-card.live { border-color: var(--padel-yellow); box-shadow: 0 0 15px rgba(204, 255, 0, 0.1); }
+        .monitor-header { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .monitor-score { background: #000; padding: 10px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #111; }
+
+        /* CONFIGURATION */
+        .club-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 25px; margin-bottom: 25px; }
+        .court-row { display: flex; justify-content: space-between; align-items: center; background: #111; padding: 12px 18px; border-radius: 12px; margin-bottom: 8px; border: 1px solid #222; }
+        
+        /* BOUTONS */
+        button { cursor: pointer; font-weight: bold; border: none; border-radius: 8px; transition: 0.2s; }
+        button:active { transform: scale(0.95); }
+        .btn-reset { background: #200; color: #ff4444; border: 1px solid #400; width: 100%; padding: 10px; font-size: 11px; text-transform: uppercase; }
+        .btn-reset:hover { background: #400; }
+        .btn-delete { background: none; color: #555; font-size: 18px; padding: 5px 10px; }
+        .btn-delete:hover { color: #ff4444; }
+        .btn-link { background: var(--padel-blue); color: #000; padding: 8px 12px; font-size: 11px; margin-right: 5px; }
+        .primary { background: var(--padel-yellow); color: #000; padding: 12px 25px; }
+        
+        input { background: #000; border: 1px solid #333; padding: 12px; color: white; border-radius: 8px; width: 100%; box-sizing: border-box; margin-bottom: 10px; }
+        
+        /* LOGIN */
+        #login-overlay { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; justify-content: center; align-items: center; }
+        .login-box { background: #0a0a0a; padding: 40px; border-radius: 30px; border: 1px solid var(--padel-yellow); text-align: center; width: 320px; }
+    </style>
+</head>
+<body>
+
+    <div id="login-overlay">
+        <div class="login-box">
+            <div class="logo">ScoreTrak Admin</div>
+            <input type="text" id="u" placeholder="Identifiant">
+            <input type="password" id="p" placeholder="Mot de passe">
+            <button class="primary" onclick="login()" style="width:100%">CONNEXION</button>
+        </div>
+    </div>
+
+    <div id="sidebar">
+        <div class="logo">ScoreTrak</div>
+        <div class="nav-item active" id="n-dash" onclick="show('dash')">📊 Live Monitoring</div>
+        <div class="nav-item" id="n-conf" onclick="show('conf')">⚙️ Configuration</div>
+        <div style="margin-top:auto; font-size:10px; color:#333;">V2.0 - 2026 EDITION</div>
+    </div>
+
+    <div id="main">
+        <div id="view-dash" class="view active">
+            <h1 style="font-family:Orbitron; font-size:24px;">LIVE <span style="color:var(--padel-yellow)">DASHBOARD</span></h1>
+            <div class="monitor-grid" id="mon-list"></div>
+        </div>
+
+        <div id="view-conf" class="view">
+            <h1 style="font-family:Orbitron; font-size:24px;">GESTION <span style="color:var(--padel-yellow)">STRUCTURE</span></h1>
+            <div class="club-card" style="border-color: var(--padel-yellow);">
+                <h3 style="margin:0 0 15px 0">Ajouter un Club</h3>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="club-n" placeholder="Nom du Club (ex: Padel Horizon)">
+                    <button class="primary" onclick="addClub()">CRÉER</button>
+                </div>
+            </div>
+            <div id="club-list"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue, set, push, remove, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        
+        const fb = { apiKey: "AIzaSyCjlHL7GEXFvnrNzZAIEZyl-WCqUI3txiM", authDomain: "scoretrak-123.firebaseapp.com", databaseURL: "https://scoretrak-123-default-rtdb.europe-west1.firebasedatabase.app", projectId: "scoretrak-123" };
+        const app = initializeApp(fb); const db = getDatabase(app);
+        
+        let clubsData = {};
+        const TV_BASE = "https://score-trak.vercel.app/PUB.html";
+
+        // AUTH
+        window.login = () => {
+            if(document.getElementById('u').value==='master' && document.getElementById('p').value==='score2026') {
+                document.getElementById('login-overlay').style.display='none';
+                startSync();
+            } else alert("Identifiants incorrects");
+        };
+
+        // NAVIGATION
+        window.show = (v) => {
+            document.querySelectorAll('.view').forEach(s=>s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+            document.getElementById('view-'+v).classList.add('active');
+            document.getElementById('n-'+v).classList.add('active');
+        };
+
+        function startSync() {
+            onValue(ref(db, 'clubs'), snap => {
+                clubsData = snap.val() || {};
+                renderDashboard();
+                renderManagement();
+            });
+        }
+
+        // RENDU : TABLEAU DE BORD (DASHBOARD)
+        function renderDashboard() {
+            const container = document.getElementById('mon-list');
+            container.innerHTML = "";
+            Object.keys(clubsData).forEach(cid => {
+                const club = clubsData[cid];
+                if(club.courts) {
+                    Object.keys(club.courts).forEach(tid => {
+                        const c = club.courts[tid];
+                        const isLive = c.status === 'active';
+                        container.innerHTML += `
+                            <div class="monitor-card ${isLive ? 'live' : ''}">
+                                <div class="monitor-header">
+                                    <div>
+                                        <div style="font-size:10px; color:var(--padel-blue); font-weight:900;">${club.name}</div>
+                                        <div style="font-weight:900; font-size:16px;">${c.name}</div>
+                                    </div>
+                                    <div style="font-size:10px; color:${isLive?'var(--padel-yellow)':'#333'}">● ${isLive?'EN COURS':'IDLE'}</div>
+                                </div>
+                                <div class="monitor-score">
+                                    <div style="display:flex; justify-content:space-between; font-size:12px;">
+                                        <span>${c.pA1||'Joueur A'} / ${c.pA2||'Joueur A'}</span>
+                                        <b style="color:var(--padel-yellow)">${c.gamesA||0}</b>
+                                    </div>
+                                    <div style="display:flex; justify-content:space-between; font-size:12px; margin-top:5px;">
+                                        <span>${c.pB1||'Joueur B'} / ${c.pB2||'Joueur B'}</span>
+                                        <b style="color:var(--padel-yellow)">${c.gamesB||0}</b>
+                                    </div>
+                                </div>
+                                <button class="btn-reset" onclick="resetCourt('${cid}','${tid}')">🔄 Reset Match</button>
+                            </div>`;
+                    });
+                }
+            });
+        }
+
+        // RENDU : GESTION (CONFIG)
+        function renderManagement() {
+            const container = document.getElementById('club-list');
+            container.innerHTML = "";
+            Object.keys(clubsData).forEach(cid => {
+                const club = clubsData[cid];
+                let courts = "";
+                if(club.courts) {
+                    Object.keys(club.courts).forEach(tid => {
+                        const url = `${TV_BASE}?clubId=${cid}&courtId=${tid}`;
+                        courts += `
+                            <div class="court-row">
+                                <span style="font-weight:bold;">${club.courts[tid].name}</span>
+                                <div style="display:flex; align-items:center;">
+                                    <button class="btn-link" onclick="copy('${url}')">🔗 LIEN TV</button>
+                                    <button class="btn-delete" onclick="deleteCourt('${cid}','${tid}')">🗑️</button>
+                                </div>
+                            </div>`;
+                    });
+                }
+                container.innerHTML += `
+                    <div class="club-card">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:20px; border-bottom:1px solid #222; padding-bottom:10px;">
+                            <h2 style="margin:0; color:var(--padel-blue);">${club.name}</h2>
+                            <button onclick="deleteClub('${cid}')" style="background:none; color:#444; font-size:10px;">SUPPRIMER CLUB</button>
+                        </div>
+                        ${courts}
+                        <div style="display:flex; gap:10px; margin-top:15px;">
+                            <input type="text" id="in-${cid}" placeholder="Nom du terrain (ex: Piste 5)">
+                            <button class="primary" style="padding:10px 20px" onclick="addCourt('${cid}')">+</button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        // --- ACTIONS FIREBASE ---
+
+        window.addClub = () => {
+            const n = document.getElementById('club-n').value;
+            if(n) { push(ref(db, 'clubs'), { name: n }); document.getElementById('club-n').value = ""; }
+        };
+
+        window.addCourt = (cid) => {
+            const n = document.getElementById('in-'+cid).value;
+            if(n) {
+                push(ref(db, `clubs/${cid}/courts`), { 
+                    name: n, status: 'idle', 
+                    scoreA:0, scoreB:0, gamesA:0, gamesB:0, setsA:0, setsB:0, 
+                    pA1:"Joueur 1", pA2:"Joueur 2", pB1:"Joueur 1", pB2:"Joueur 2",
+                    serverTeam: 'A'
+                });
+            }
+        };
+
+        window.resetCourt = (cid, tid) => {
+            if(confirm("Réinitialiser ce terrain ? Le match sera coupé et les scores remis à zéro.")) {
+                update(ref(db, `clubs/${cid}/courts/${tid}`), {
+                    status: 'idle', winner: null,
+                    scoreA:0, scoreB:0, gamesA:0, gamesB:0, setsA:0, setsB:0
+                });
+            }
+        };
+
+        window.deleteCourt = (cid, tid) => {
+            if(confirm("Supprimer définitivement ce terrain ?")) {
+                remove(ref(db, `clubs/${cid}/courts/${tid}`));
+            }
+        };
+
+        window.deleteClub = (cid) => {
+            if(confirm("⚠️ Supprimer tout le club et ses terrains ?")) {
+                remove(ref(db, `cid`));
+            }
+        };
+
+        window.copy = (t) => { navigator.clipboard.writeText(t); alert("URL copiée ! Collez-la sur la TV."); };
+    </script>
+</body>
+</html>
