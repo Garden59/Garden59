@@ -2,23 +2,23 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>ScoreTrak SuperAdmin - Sets & Games Monitor</title>
+    <title>ScoreTrak SuperAdmin - Pro Dashboard</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Roboto:wght@400;700;900&display=swap');
         
-        :root { --padel-yellow: #ccff00; --padel-blue: #00d2ff; --bg-dark: #000; --card-bg: #0d0d0d; --border: #222; }
-        body { background: var(--bg-dark); color: white; font-family: 'Roboto', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        :root { --padel-yellow: #ccff00; --padel-blue: #00d2ff; --bg: #000; --card: #0d0d0d; --border: #222; }
+        body { background: var(--bg); color: white; font-family: 'Roboto', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
         
         /* SIDEBAR */
         #sidebar { width: 260px; background: #050505; border-right: 1px solid var(--border); padding: 25px; display: flex; flex-direction: column; }
-        .logo { font-family: 'Orbitron'; color: var(--padel-yellow); font-size: 22px; margin-bottom: 40px; font-style: italic; font-weight: 900; letter-spacing: -1px; }
+        .logo { font-family: 'Orbitron'; color: var(--padel-yellow); font-size: 22px; margin-bottom: 40px; font-weight: 900; font-style: italic; }
         .nav-item { padding: 14px; cursor: pointer; border-radius: 10px; margin-bottom: 8px; color: #666; transition: 0.3s; font-weight: bold; }
         .nav-item.active { background: var(--padel-yellow); color: #000; }
         .nav-item:hover:not(.active) { color: #fff; background: #111; }
 
         #main { flex: 1; padding: 40px; overflow-y: auto; background: radial-gradient(circle at top right, #111, #000); }
         .view { display: none; } .view.active { display: block; }
-        h1 { font-family: 'Orbitron'; font-size: 24px; margin-bottom: 30px; text-transform: uppercase; }
+        h1 { font-family: 'Orbitron'; font-size: 24px; margin-bottom: 30px; }
         h1 span { color: var(--padel-yellow); }
 
         /* FILTRES */
@@ -26,39 +26,39 @@
         .search-input { flex: 1; background: #000; border: 1px solid #333; padding: 12px; border-radius: 8px; color: white; border-left: 4px solid var(--padel-blue); }
         .select-club { background: #000; color: white; border: 1px solid #333; padding: 12px; border-radius: 8px; min-width: 200px; }
 
-        /* MONITOR CARD */
-        .monitor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 20px; }
-        .monitor-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 20px; transition: 0.3s; }
+        /* MONITOR CARD DESIGN TV */
+        .monitor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(450px, 1fr)); gap: 20px; }
+        .monitor-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 20px; transition: 0.3s; position: relative; }
         .monitor-card.live { border-color: var(--padel-yellow); }
-        .monitor-card.setup { border-color: var(--padel-blue); }
         .monitor-card.finished { border-color: #ff4444; }
 
-        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
-        .club-tag { font-size: 10px; color: var(--padel-blue); font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
-        .status-label { font-size: 9px; font-weight: 900; color: #555; text-transform: uppercase; border: 1px solid #333; padding: 2px 6px; border-radius: 4px; }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+        .club-tag { font-size: 10px; color: var(--padel-blue); font-weight: 900; text-transform: uppercase; }
+        .status-label { font-size: 9px; font-weight: 900; color: #444; border: 1px solid #333; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; }
 
-        /* SCORE DISPLAY (GAMES & SETS) */
-        .team-row { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.02); padding: 12px 18px; border-radius: 12px; height: 60px; margin-bottom: 8px; }
-        .player-info { flex: 1; }
-        .player-names { font-size: 13px; font-weight: 900; text-transform: uppercase; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        /* SCORE LAYOUT (PRO STYLE) */
+        .match-display { display: flex; flex-direction: column; gap: 2px; background: #1a1a1a; border-radius: 12px; overflow: hidden; border: 1px solid #222; }
+        .team-row { display: grid; grid-template-columns: 1fr 40px 40px 40px 60px; align-items: center; background: #0d0d0d; padding: 10px 15px; }
+        .team-row.winner { background: rgba(204, 255, 0, 0.05); }
+
+        .player-names { font-size: 14px; font-weight: 900; color: #fff; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        .sets-won-label { font-size: 9px; color: #555; font-weight: 900; margin-bottom: 2px; }
-        .score-box { display: flex; align-items: center; gap: 10px; }
-        .past-sets { display: flex; gap: 4px; }
-        .set-pill { background: #1a1a1a; color: #888; font-size: 10px; font-weight: 900; padding: 2px 6px; border-radius: 4px; border: 1px solid #333; }
-        .game-count { font-family: 'Orbitron'; font-size: 32px; color: var(--padel-yellow); width: 40px; text-align: right; line-height: 1; }
+        /* SET BOXES */
+        .set-box { font-family: 'Orbitron'; font-size: 16px; color: #444; text-align: center; font-weight: 900; border-left: 1px solid #222; height: 100%; display: flex; align-items: center; justify-content: center; }
+        .set-box.past { color: #888; }
+        .set-box.win { color: var(--padel-blue); }
 
-        /* ACTIONS */
-        .btn-reset { background: #1a0000; color: #ff4444; border: 1px solid #300; width: 100%; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 10px; margin-top: 10px; text-transform: uppercase; }
-        .btn-reset:hover { background: #ff4444; color: #000; }
+        /* GAME BOX (CURRENT) */
+        .game-box { font-family: 'Orbitron'; font-size: 28px; color: var(--padel-yellow); text-align: center; font-weight: 900; background: #000; height: 100%; display: flex; align-items: center; justify-content: center; border-left: 2px solid #222; }
 
+        .btn-reset { background: #1a0000; color: #ff4444; border: 1px solid #300; width: 100%; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 10px; margin-top: 15px; text-transform: uppercase; }
+        
         /* CONFIG */
-        .club-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 25px; margin-bottom: 25px; }
+        .club-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 25px; margin-bottom: 25px; }
         .court-row { display: flex; justify-content: space-between; align-items: center; background: #111; padding: 12px; border-radius: 10px; margin-bottom: 8px; border: 1px solid #222; }
         .btn-copy { background: var(--padel-blue); color: #000; padding: 8px 15px; font-size: 11px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
         .primary-btn { background: var(--padel-yellow); color: #000; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
-        /* AUTH */
         #login-overlay { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; justify-content: center; align-items: center; }
         .login-box { background: #0a0a0a; padding: 50px; border-radius: 30px; border: 1px solid var(--padel-yellow); text-align: center; width: 350px; }
     </style>
@@ -70,7 +70,7 @@
             <div class="logo">ScoreTrak Admin</div>
             <input type="text" id="adm-u" placeholder="Identifiant" style="width:100%; padding:12px; margin-bottom:10px; border-radius:8px; border:1px solid #333; background:#000; color:#fff;">
             <input type="password" id="adm-p" placeholder="Mot de passe" style="width:100%; padding:12px; margin-bottom:20px; border-radius:8px; border:1px solid #333; background:#000; color:#fff;">
-            <button onclick="login()" class="primary-btn" style="width:100%">DÉVERROUILLER</button>
+            <button onclick="login()" class="primary-btn" style="width:100%">CONNEXION</button>
         </div>
     </div>
 
@@ -78,26 +78,26 @@
         <div class="logo">ScoreTrak</div>
         <div class="nav-item active" id="nav-dash" onclick="showView('dash')">📊 MONITORING LIVE</div>
         <div class="nav-item" id="nav-conf" onclick="showView('conf')">⚙️ CONFIG CLUBS</div>
-        <div style="margin-top:auto; font-size:10px; color:#333;">V5.1 - GAMES & SETS ONLY</div>
+        <div style="margin-top:auto; font-size:10px; color:#333;">V6.0 - TV DISPLAY MODE</div>
     </div>
 
     <div id="main">
         <div id="view-dash" class="view active">
-            <h1>Surveillance <span>Live</span></h1>
+            <h1>Live <span>Monitoring</span></h1>
             <div class="filter-bar">
                 <select id="filter-club" class="select-club" onchange="renderDashboard()"><option value="all">TOUS LES CLUBS</option></select>
-                <input type="text" id="search-court" class="search-input" placeholder="Chercher un terrain..." onkeyup="renderDashboard()">
+                <input type="text" id="search-court" class="search-input" placeholder="Chercher une piste..." onkeyup="renderDashboard()">
             </div>
             <div class="monitor-grid" id="monitor-list"></div>
         </div>
 
         <div id="view-conf" class="view">
-            <h1>Gestion <span>Structure</span></h1>
+            <h1>Gestion <span>Clubs</span></h1>
             <div class="club-card" style="border-color: var(--padel-yellow);">
-                <h3 style="margin-top:0">Nouveau Club</h3>
+                <h3 style="margin-top:0">Créer un Club</h3>
                 <div style="display:flex; gap:10px;">
                     <input type="text" id="new-club-name" placeholder="Nom du Club" style="flex:1; padding:12px; border-radius:8px; background:#000; color:#fff; border:1px solid #333;">
-                    <button onclick="createClub()" class="primary-btn">CRÉER</button>
+                    <button onclick="createClub()" class="primary-btn">AJOUTER</button>
                 </div>
             </div>
             <div id="club-mgmt-list"></div>
@@ -117,7 +117,7 @@
         window.login = () => {
             if(document.getElementById('adm-u').value === "master" && document.getElementById('adm-p').value === "score2026") {
                 document.getElementById('login-overlay').style.display = 'none'; sync();
-            } else alert("Accès refusé");
+            } else alert("Erreur");
         };
 
         window.showView = (v) => {
@@ -158,17 +158,9 @@
                     const isFini = c.winner != null;
                     const isLive = c.status === 'active';
                     const isSetup = c.status === 'setup';
-                    const showMatch = isLive || isFini;
+                    const showScore = isLive || isFini;
 
-                    // Historique des Sets (Pills)
-                    let setsA = [], setsB = [];
-                    for(let i=1; i<=3; i++) {
-                        if(c['s'+i+'A'] !== undefined && c['s'+i+'A'] !== "") {
-                            setsA.push(c['s'+i+'A']); setsB.push(c['s'+i+'B']);
-                        }
-                    }
-
-                    // Statut dynamique
+                    // Statut label
                     let stTxt = "VEILLE"; let stStyle = "";
                     if(isFini) { stTxt = "TERMINÉ"; stStyle = "color:#ff4444; border-color:#ff4444"; }
                     else if(isSetup) { stTxt = "CONFIGURATION EN COURS"; stStyle = "color:var(--padel-blue); border-color:var(--padel-blue)"; }
@@ -176,6 +168,17 @@
 
                     const card = document.createElement('div');
                     card.className = `monitor-card ${isLive?'live':''} ${isFini?'finished':''}`;
+                    
+                    // Génération des colonnes de sets (S1, S2, S3)
+                    const getSetVal = (team, num) => {
+                        let val = c['s'+num+team];
+                        if (val === undefined || val === null) return "";
+                        let win = false;
+                        if (team === 'A') win = parseInt(c['s'+num+'A']) > parseInt(c['s'+num+'B']);
+                        else win = parseInt(c['s'+num+'B']) > parseInt(c['s'+num+'A']);
+                        return `<div class="set-box past ${win?'win':''}">${val}</div>`;
+                    };
+
                     card.innerHTML = `
                         <div class="card-header">
                             <div>
@@ -185,28 +188,21 @@
                             <div class="status-label" style="${stStyle}">${stTxt}</div>
                         </div>
 
-                        <div style="opacity: ${showMatch ? 1 : 0}">
-                            <div class="sets-won-label">SCORE : ${c.setsA || 0} SET(S) À ${c.setsB || 0}</div>
-                            
-                            <div class="team-row">
-                                <div class="player-info">
-                                    <div class="player-names">${c.pA1} / ${c.pA2}</div>
-                                    <div class="past-sets">${setsA.map(s => `<span class="set-pill">${s}</span>`).join('')}</div>
-                                </div>
-                                <div class="game-count">${isFini ? c.setsA : (c.gamesA || 0)}</div>
+                        <div class="match-display" style="opacity: ${showScore ? 1 : 0}">
+                            <div class="team-row ${c.winner==='A'?'winner':''}">
+                                <div class="player-names">${c.pA1} / ${c.pA2}</div>
+                                ${getSetVal('A', 1)} ${getSetVal('A', 2)} ${getSetVal('A', 3)}
+                                <div class="game-box">${isFini ? c.setsA : (c.gamesA || 0)}</div>
                             </div>
-
-                            <div class="team-row">
-                                <div class="player-info">
-                                    <div class="player-names">${c.pB1} / ${c.pB2}</div>
-                                    <div class="past-sets">${setsB.map(s => `<span class="set-pill">${s}</span>`).join('')}</div>
-                                </div>
-                                <div class="game-count">${isFini ? c.setsB : (c.gamesB || 0)}</div>
+                            <div class="team-row ${c.winner==='B'?'winner':''}">
+                                <div class="player-names">${c.pB1} / ${c.pB2}</div>
+                                ${getSetVal('B', 1)} ${getSetVal('B', 2)} ${getSetVal('B', 3)}
+                                <div class="game-box">${isFini ? c.setsB : (c.gamesB || 0)}</div>
                             </div>
                         </div>
 
                         <button class="btn-reset" onclick="resetCourt('${clubId}','${courtId}')">
-                            ${isFini ? 'Nettoyer le terrain' : 'Forcer Reset'}
+                            ${isFini ? 'Nettoyer le terrain' : 'Forcer Reset (PUB)'}
                         </button>
                     `;
                     list.appendChild(card);
@@ -224,7 +220,7 @@
                         courts += `<div class="court-row"><span style="font-weight:bold">${club.courts[tid].name}</span><div><button class="btn-copy" onclick="copy('${url}')">🔗 LIEN TV</button><button onclick="deleteCourt('${cid}','${tid}')" style="background:none; color:#555; border:none; cursor:pointer; font-size:18px; margin-left:10px">×</button></div></div>`;
                     });
                 }
-                container.innerHTML += `<div class="club-card"><div style="display:flex; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #222; padding-bottom:10px"><h2 style="margin:0; color:var(--padel-blue); font-family:Orbitron; font-size:18px;">${club.name}</h2><button onclick="deleteClub('${cid}')" style="background:none; border:none; color:#444; font-size:9px; cursor:pointer">SUPPRIMER CLUB</button></div>${courts}<div style="display:flex; gap:10px; margin-top:15px"><input type="text" id="in-${cid}" placeholder="Nouveau terrain..." style="flex:1; background:#000; border:1px solid #333; color:white; padding:10px; border-radius:8px;"><button onclick="addCourt('${cid}')" class="primary-btn" style="padding:10px 20px">+</button></div></div>`;
+                container.innerHTML += `<div class="club-card"><div style="display:flex; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #222; padding-bottom:10px"><h2 style="margin:0; color:var(--padel-blue); font-family:Orbitron; font-size:18px;">${club.name}</h2><button onclick="deleteClub('${cid}')" style="background:none; border:none; color:#444; font-size:9px; cursor:pointer">SUPPRIMER CLUB</button></div>${courts}<div style="display:flex; gap:10px; margin-top:15px"><input type="text" id="in-${cid}" placeholder="Nom du terrain..." style="flex:1; background:#000; border:1px solid #333; color:white; padding:10px; border-radius:8px;"><button onclick="addCourt('${cid}')" class="primary-btn" style="padding:10px 20px">+</button></div></div>`;
             });
         }
 
