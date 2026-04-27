@@ -7,13 +7,18 @@
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Roboto:wght@900&display=swap');
         body { background: #000; color: #fff; font-family: Roboto; margin: 0; overflow: hidden; }
         :root { --padel-yellow: #ccff00; --padel-blue: #00d2ff; }
-        #idle { display: flex; height: 100vh; }
+        
+        /* Bandeau d'identification */
+        #court-id-bar { background: #111; padding: 10px; text-align: center; font-size: 14px; color: var(--padel-blue); border-bottom: 1px solid #222; text-transform: uppercase; font-weight: bold; }
+
+        #idle { display: flex; height: calc(100vh - 40px); }
         .ad-box { flex: 1.8; border-right: 2px solid #222; display: flex; justify-content: center; align-items: center; }
-        #ad-wrap { width: 90%; height: 70%; border-radius: 40px; border: 3px solid #333; position: relative; overflow: hidden; background: #111; }
+        #ad-wrap { width: 90%; height: 70%; border-radius: 40px; border: 3px solid #333; position: relative; overflow: hidden; background: #111; transition: 0.8s; }
         .ad-txt { position: absolute; bottom: 40px; left: 40px; font-size: 5vw; color: var(--padel-yellow); font-style: italic; z-index: 10; text-shadow: 0 4px 20px #000; }
         .qr-box { flex: 1.2; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .qr-frame { background: white; padding: 20px; border-radius: 20px; }
-        #match { display: grid; grid-template-columns: 40% 10% 10% 10% 30%; height: 100vh; display: none; }
+        
+        #match { display: grid; grid-template-columns: 40% 10% 10% 10% 30%; height: calc(100vh - 40px); display: none; }
         .cell { display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #111; border-right: 1px solid #111; font-family: Orbitron; font-size: 6vw; }
         .pts { font-size: 13vw; color: var(--padel-blue); background: rgba(0,210,255,0.05); text-shadow: 0 0 30px var(--padel-blue); }
         .name { justify-content: flex-start; padding-left: 30px; font-family: Roboto; font-size: 4vw; }
@@ -21,36 +26,60 @@
     </style>
 </head>
 <body>
-    <div id="idle"><div class="ad-box"><div id="ad-wrap"></div></div><div class="qr-box"><div class="qr-frame"><img id="qr"></div><h2 style="color:var(--padel-yellow)">SCAN POUR SCORE</h2></div></div>
+    <div id="court-id-bar">Chargement du terrain...</div>
+
+    <div id="idle">
+        <div class="ad-box"><div id="ad-wrap"></div></div>
+        <div class="qr-box">
+            <div class="qr-frame"><img id="qr"></div>
+            <h2 style="color:var(--padel-yellow)">SCAN POUR SCORE</h2>
+        </div>
+    </div>
+
     <div id="match"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-        const fb = { apiKey: "AIzaSyCjlHL7GEXFvnrNzZAIEZyl-WCqUI3txiM", authDomain: "scoretrak-123.firebaseapp.com", databaseURL: "https://scoretrak-123-default-rtdb.europe-west1.firebasedatabase.app", projectId: "scoretrak-123" };
-        const app = initializeApp(fb); const db = getDatabase(app);
-        const p = new URLSearchParams(window.location.search);
-        const cid = p.get('clubId'), tid = p.get('courtId');
+        
+        const fbConfig = { apiKey: "AIzaSyCjlHL7GEXFvnrNzZAIEZyl-WCqUI3txiM", authDomain: "scoretrak-123.firebaseapp.com", databaseURL: "https://scoretrak-123-default-rtdb.europe-west1.firebasedatabase.app", projectId: "scoretrak-123" };
+        const app = initializeApp(fbConfig); const db = getDatabase(app);
+
+        // RÉCUPÉRATION STRICTE DES IDs DEPUIS L'URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const cid = urlParams.get('clubId');
+        const tid = urlParams.get('courtId');
 
         if(cid && tid) {
-            const admin = `https://score-trak.vercel.app/SmartphoneV5.html?clubId=${cid}&courtId=${tid}`;
-            document.getElementById('qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(admin)}`;
+            // Lien vers le smartphone UNIQUE à ce terrain
+            const adminLink = `https://score-trak.vercel.app/SmartphoneV5.html?clubId=${cid}&courtId=${tid}`;
+            document.getElementById('qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(adminLink)}`;
+            
+            // Écoute SEULEMENT ce club et ce terrain
             onValue(ref(db, `clubs/${cid}/courts/${tid}`), snap => {
                 const d = snap.val(); if(!d) return;
+                
+                document.getElementById('court-id-bar').innerText = `${d.name || 'Terrain'}`;
+
                 const idle = document.getElementById('idle'), match = document.getElementById('match');
-                if(d.status === 'idle') { idle.style.display='flex'; match.style.display='none'; return; }
+                if(d.status === 'idle' || !d.status) { idle.style.display='flex'; match.style.display='none'; return; }
+                
                 idle.style.display='none'; match.style.display='grid';
                 const lbl = ["0","15","30","40","AD"];
                 match.innerHTML = `
-                    <div class="cell name" style="height:50vh"><div>${d.pA1}<br>${d.pA2}</div><div class="ball" style="${d.serverTeam==='A'?'display:block':''}"></div></div>
+                    <div class="cell name" style="height:45vh"><div>${d.pA1}<br>${d.pA2}</div><div class="ball" style="${d.serverTeam==='A'?'display:block':''}"></div></div>
                     <div class="cell">${d.s1A||(d.setsA+d.setsB==0?d.gamesA:'')}</div><div class="cell">${d.s2A||(d.setsA+d.setsB==1?d.gamesA:'')}</div><div class="cell">${d.s3A||''}</div>
                     <div class="cell pts">${d.gamesA==6&&d.gamesB==6?d.scoreA:(lbl[d.scoreA]||"0")}</div>
-                    <div class="cell name" style="height:50vh; border:none"><div>${d.pB1}<br>${d.pB2}</div><div class="ball" style="${d.serverTeam==='B'?'display:block':''}"></div></div>
-                    <div class="cell" style="border:none">${d.s1B||(d.setsA+d.setsB==0?d.gamesB:'')}</div><div class="cell" style="border:none">${d.s2B||(d.setsA+d.setsB==1?d.gamesB:'')}</div><div class="cell" style="border:none">${d.s3B||''}</div>
+                    <div class="cell name" style="height:45vh; border:none"><div>${d.pB1}<br>${d.pB2}</div><div class="ball" style="${d.serverTeam==='B'?'display:block':''}"></div></div>
+                    <div class="cell" style="border:none">${d.s1B||(d.setsA+d.setsB==0?d.gamesB:'')}</div><div class="cell" style="border-bottom:none">${d.s2B||(d.setsA+d.setsB==1?d.gamesB:'')}</div><div class="cell" style="border-bottom:none">${d.s3B||''}</div>
                     <div class="cell pts" style="border:none">${d.gamesA==6&&d.gamesB==6?d.scoreB:(lbl[d.scoreB]||"0")}</div>
                 `;
             });
+        } else {
+            document.getElementById('court-id-bar').innerHTML = "<span style='color:red'>ERREUR : IDs MANQUANTS DANS L'URL</span>";
         }
+
+        // PUBS
         const ads = [{t:"CLUB MED", i:"https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?q=80&w=1200"},{t:"AUDI E-TRON", i:"https://images.unsplash.com/photo-1606152421802-db97b9c7a11b?q=80&w=1200"}];
         let cur = 0; setInterval(() => {
             const w = document.getElementById('ad-wrap'); w.style.opacity = 0;
