@@ -2,71 +2,72 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>ScoreTrak TV - Multi-Tenant Pro Edition</title>
+    <title>ScoreTrak TV - Padel Pro Edition (Dynamic)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Roboto:wght@400;700;900&display=swap');
         :root { --padel-yellow: #ccff00; --padel-blue: #00d2ff; --border-color: #222b38; }
         
         body { background: #000; color: white; font-family: 'Roboto', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
         
-        /* 1. ÉCRAN VEILLE (ADS + QR) */
+        /* 1. ÉCRAN VEILLE AVEC PUB DYNAMIQUE */
         #idle-screen { position: fixed; inset: 0; display: flex; z-index: 500; background: #000; }
         .ad-space { flex: 1.8; border-right: 2px solid var(--border-color); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
-        
-        #ad-container { 
-            width: 92%; height: 75%; border-radius: 40px; overflow: hidden;
-            position: relative; border: 3px solid #222;
-            transition: opacity 0.8s ease-in-out; opacity: 1; background: #111;
-        }
+        #ad-container { width: 92%; height: 75%; border-radius: 40px; overflow: hidden; position: relative; border: 3px solid #222; transition: opacity 0.8s ease-in-out; background: #111; }
         .ad-content { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start; position: relative; }
         .ad-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.7; z-index: 1; }
         .ad-logo { position: absolute; top: 40px; left: 4vw; max-width: 20vw; max-height: 12vh; z-index: 15; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5)); }
-        .ad-text { position: relative; z-index: 10; font-size: 4.5vw; color: var(--padel-yellow); font-style: italic; font-weight: 900; text-shadow: 0 4px 20px rgba(0,0,0,1); padding: 0 0 5vh 4vw; line-height: 1.1; }
+        .ad-text { position: relative; z-index: 10; font-size: 4.5vw; color: var(--padel-yellow); font-style: italic; font-weight: 900; text-shadow: 0 4px 20px #000; padding-left: 4vw; padding-bottom: 5vh; line-height: 1.1; }
         .fade-out { opacity: 0 !important; }
 
         .qr-space { flex: 1.2; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #050608; text-align: center; }
-        .qr-frame { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 0 30px rgba(255,255,255,0.1); }
+        .qr-frame { background: white; padding: 20px; border-radius: 20px; }
         .qr-frame img { width: 18vw; height: 18vw; display: block; }
         .qr-text { margin-top: 30px; font-size: 1.5vw; color: var(--padel-yellow); text-transform: uppercase; letter-spacing: 2px; font-weight: bold; }
-        .error-msg { color: #ff4444; font-size: 1.2vw; margin-top: 20px; padding: 15px; border: 1px solid #ff4444; border-radius: 10px; background: rgba(255,0,0,0.1); width: 80%; }
+        .error-msg { color: #ff4444; font-size: 1.2vw; margin-top: 20px; border: 1px solid #ff4444; padding: 10px; border-radius: 10px; background: rgba(255,0,0,0.1); width: 80%; }
 
-        /* 2. ÉCRANS TRANSITION (SETUP / VICTOIRE / FINAL) */
+        /* 2. ÉCRAN SETUP */
         #setup-screen { position: fixed; inset: 0; background: #000; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 550; }
-        .logo-setup { font-size: 12vw; color: var(--padel-yellow); font-family: 'Orbitron'; font-weight: 900; animation: pulse 1.5s infinite; }
+        .logo-setup { font-size: 12vw; color: var(--padel-yellow); font-family: 'Orbitron'; font-style: italic; font-weight: 900; animation: pulse 1.5s infinite; }
+        .setup-sub { font-size: 1.5vw; color: #555; text-transform: uppercase; letter-spacing: 12px; margin-top: 20px; font-weight: bold; }
 
+        /* 3. ÉCRAN VICTOIRE */
         #victory-screen { position: fixed; inset: 0; background: #000; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 600; }
         .victory-title { font-size: 15vw; color: var(--padel-yellow); font-family: 'Orbitron'; font-weight: 900; animation: dropSmash 0.8s forwards; text-shadow: 0 0 30px rgba(204,255,0,0.6); }
+        .victory-names { font-size: 5vw; color: white; text-transform: uppercase; font-weight: 900; opacity: 0; animation: fadeIn 0.5s 0.8s forwards; margin-top: 20px; }
 
+        /* 4. ÉCRAN FINAL */
         #final-screen { position: fixed; inset: 0; background: #000; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 580; }
+        .final-header { font-size: 5vw; font-family: 'Orbitron'; color: #fff; text-transform: uppercase; font-weight: 900; margin-bottom: 5vh; position: relative; }
         .final-table { width: 90%; background: #0a0a0a; border-radius: 30px; padding: 4vh; border: 1px solid var(--border-color); animation: zoomIn 0.5s ease-out; }
         .final-row { display: grid; align-items: center; padding: 3vh 0; border-bottom: 1px solid #1a1a1a; }
+        .final-names { font-size: 3vw; font-weight: 900; text-transform: uppercase; color: #fff; padding-left: 20px; }
+        .final-set-box { font-family: 'Orbitron'; font-size: 5vw; font-weight: 900; text-align: center; color: #444; position: relative; }
 
-        /* 3. INTERFACE MATCH PRO */
+        /* 5. INTERFACE MATCH */
         .main-container { height: 100vh; display: flex; flex-direction: column; visibility: hidden; background: #000; }
         .grid-layout { display: grid; grid-template-columns: 35% 9% 9% 9% 9% 9% 20%; align-items: center; }
         .header-row { padding: 2vh 0; color: #6a7b92; font-weight: 900; font-size: 1.1vw; text-transform: uppercase; border-bottom: 1px solid #111; }
         .header-row > div { display: flex; justify-content: center; }
         .header-row > div:first-child { justify-content: flex-start; padding-left: 3vw; }
-
         .team-row { height: 41vh; border-bottom: 1px solid #111; }
         .identity-cell { display: flex; flex-direction: column; justify-content: center; padding-left: 3vw; }
         .player-line { display: flex; align-items: center; height: 8vh; }
         .name-txt { font-size: 4.5vw; font-weight: 900; text-transform: uppercase; color: #fff; line-height: 1.1; }
         .serve-ball { width: 2vw; height: 2vw; background: var(--padel-yellow); border-radius: 50%; margin-left: 20px; box-shadow: 0 0 20px var(--padel-yellow); display: none; }
-
         .set-cell { display: flex; justify-content: center; align-items: center; font-family: 'Orbitron'; font-size: 5.5vw; font-weight: 900; color: #fff; height: 100%; border-right: 1px solid #111; position: relative; }
-        .tb-score { font-size: 2vw; position: absolute; top: 10%; right: 10%; color: #888; }
+        .tb-score { font-size: 2vw; position: absolute; top: 10%; right: 10%; color: #888; font-weight: 700; }
         .set-winner { color: var(--padel-yellow) !important; text-shadow: 0 0 15px rgba(204, 255, 0, 0.5); }
         .pts-cell { display: flex; align-items: center; justify-content: center; font-family: 'Orbitron'; font-size: 11vw; font-weight: 900; color: var(--padel-blue); background: rgba(0, 210, 255, 0.05); text-shadow: 0 0 30px rgba(0, 210, 255, 0.4); height: 100%; overflow: hidden; }
 
         .footer-match { display: flex; justify-content: space-between; align-items: center; padding: 1.5vh 3vw; color: #444; font-size: 1vw; font-weight: 900; text-transform: uppercase; }
         #status-badge { color: var(--padel-yellow); letter-spacing: 5px; animation: blink 1s infinite; display: none; background: rgba(204,255,0,0.1); padding: 8px 25px; border-radius: 10px; border: 2px solid var(--padel-yellow); font-size: 1.5vw; }
 
-        /* ANIMATIONS */
+        /* KEYFRAMES */
         @keyframes dropSmash { 0% { transform: translateY(-1000px); } 60% { transform: translateY(0) scale(1.1); } 100% { transform: translateY(0) scale(1); } }
         @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+        @keyframes fadeIn { to { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -82,9 +83,9 @@
         </div>
     </div>
 
-    <div id="setup-screen"><div class="logo-setup">ScoreTrak</div></div>
-    <div id="victory-screen"><div class="victory-title">VICTOIRE</div><div id="win-names-tv" style="font-size:5vw; font-weight:900; margin-top:20px;"></div></div>
-    <div id="final-screen"><h1 style="font-family:Orbitron; text-align:center; font-size:4vw;">RÉSULTAT DU MATCH</h1><div class="final-table" id="final-table-rows"></div></div>
+    <div id="setup-screen"><div class="logo-setup">ScoreTrak</div><div class="setup-sub">Configuration...</div></div>
+    <div id="victory-screen"><div class="victory-title">VICTOIRE</div><div id="win-names-tv" class="victory-names"></div></div>
+    <div id="final-screen"><div class="final-header">RÉSULTAT DU MATCH</div><div class="final-table" id="final-table-rows"></div></div>
 
     <div id="main-ui" class="main-container">
         <div class="header-row grid-layout" id="header-match">
@@ -106,7 +107,7 @@
             <div id="st1B" class="set-cell"></div><div id="st2B" class="set-cell"></div><div id="st3B" class="set-cell"></div><div id="st4B" class="set-cell"></div><div id="st5B" class="set-cell"></div>
             <div id="sB" class="pts-cell">0</div>
         </div>
-        <div class="footer-match"><div id="court-name">Court</div><div id="status-badge"></div><div>Live ScoreTrak</div></div>
+        <div class="footer-match"><div id="court-display-name">Court</div><div id="status-badge"></div><div>Live ScoreTrak</div></div>
     </div>
 
     <script type="module">
@@ -116,33 +117,30 @@
         const fbConfig = { apiKey: "AIzaSyCjlHL7GEXFvnrNzZAIEZyl-WCqUI3txiM", authDomain: "scoretrak-123.firebaseapp.com", databaseURL: "https://scoretrak-123-default-rtdb.europe-west1.firebasedatabase.app", projectId: "scoretrak-123" };
         const app = initializeApp(fbConfig); const db = getDatabase(app);
 
-        // 1. RÉCUPÉRATION DES IDs DANS L'URL
+        // --- PARSE PARAMETERS ---
         const urlParams = new URLSearchParams(window.location.search);
         const clubId = urlParams.get('clubId');
         const courtId = urlParams.get('courtId');
 
-        // Éléments UI
+        // --- UI ELEMENTS ---
         const qrImg = document.getElementById('qr-code-img');
         const debugArea = document.getElementById('debug-area');
         const statusMsg = document.getElementById('qr-status-msg');
 
         if (clubId && courtId) {
-            // GENERATION DU QR CODE DYNAMIQUE
             const adminURL = `https://score-trak.vercel.app/SmartphoneV5.html?clubId=${clubId}&courtId=${courtId}`;
             qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(adminURL)}`;
 
-            // ECOUTE FIREBASE DU TERRAIN SPECIFIQUE
             onValue(ref(db, `clubs/${clubId}/courts/${courtId}`), (snap) => {
                 const d = snap.val(); if(!d) return;
-                updateUI(d);
+                updateMatchUI(d);
             });
         } else {
-            // ERREUR SI PAS D'ID
             statusMsg.style.color = "red"; statusMsg.innerText = "ERREUR CONFIGURATION";
             debugArea.innerHTML = `<div class="error-msg"><b>IDs manquants !</b><br>Utilisez le bouton "LIEN TV" depuis l'Admin.</div>`;
         }
 
-        // --- GESTION DES PUBS ---
+        // --- PUBS ---
         const ads = [
             { text: "CLUB MED<br>L'esprit libre", img: "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?q=80&w=1200", logo: "https://upload.wikimedia.org/wikipedia/fr/0/05/Logo_Club_Med.png" },
             { text: "AUDI E-TRON<br>Future is electric", img: "https://images.unsplash.com/photo-1606152421802-db97b9c7a11b?q=80&w=1200", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Audi-Logo_2016.svg/512px-Audi-Logo_2016.svg.png" }
@@ -161,62 +159,106 @@
         }
         rotateAds(); setInterval(rotateAds, 5000);
 
-        // --- LOGIQUE D'AFFICHAGE DU MATCH ---
-        function updateUI(d) {
+        // --- CORE LOGIC ---
+        function formatScoreHTML(val, isWinner, tbVal) {
+            if (val === undefined || val === null || val === "") return "";
+            let res = `<span class="${isWinner ? 'set-winner' : ''}">${val}</span>`;
+            if (tbVal !== undefined && tbVal !== "") { res += `<span class="tb-score">${tbVal}</span>`; }
+            return res;
+        }
+
+        function updateMatchUI(d) {
             const idle = document.getElementById('idle-screen'), setup = document.getElementById('setup-screen'), main = document.getElementById('main-ui'), victory = document.getElementById('victory-screen'), final = document.getElementById('final-screen'), badge = document.getElementById('status-badge');
-            
+
             if (d.status === 'idle') { idle.style.display = 'flex'; setup.style.display = 'none'; main.style.visibility = 'hidden'; victory.style.display = 'none'; final.style.display = 'none'; return; }
             if (d.status === 'setup') { idle.style.display = 'none'; setup.style.display = 'flex'; main.style.visibility = 'hidden'; return; }
 
             idle.style.display = 'none'; setup.style.display = 'none';
-            document.getElementById('court-name').innerText = d.name || "Court";
+            document.getElementById('court-display-name').innerText = d.name || "Court";
 
-            // Grille 3 ou 5 sets
-            const is5 = (d.maxSets === 3);
-            const gridTpl = is5 ? "35% 9% 9% 9% 9% 9% 20%" : "45% 12% 12% 12% 19%";
-            [document.getElementById('header-match'), document.getElementById('row-A'), document.getElementById('row-B')].forEach(el => el.style.gridTemplateColumns = gridTpl);
+            const maxPossible = (d.maxSets === 3) ? 5 : 3;
+            const gridTpl = maxPossible === 5 ? "35% 9% 9% 9% 9% 9% 20%" : "45% 12% 12% 12% 19%";
             
+            [document.getElementById('header-match'), document.getElementById('row-A'), document.getElementById('row-B')].forEach(el => el.style.gridTemplateColumns = gridTpl);
             for(let i=1; i<=5; i++){
-                const show = (i <= (is5 ? 5 : 3)) ? 'flex' : 'none';
-                document.getElementById('h-s'+i).style.display = show;
-                document.getElementById('st'+i+'A').style.display = show; document.getElementById('st'+i+'B').style.display = show;
+                const display = (i <= maxPossible) ? 'flex' : 'none';
+                if(document.getElementById('h-s'+i)) document.getElementById('h-s'+i).style.display = display;
+                document.getElementById('st'+i+'A').style.display = display; document.getElementById('st'+i+'B').style.display = display;
             }
 
             if (d.winner) {
-                main.style.visibility = 'hidden'; victory.style.display = 'flex';
-                document.getElementById('win-names-tv').innerText = d.winner === 'A' ? `${d.pA1} & ${d.pA2}` : `${d.pB1} & ${d.pB2}`;
+                main.style.visibility = 'hidden';
+                if (victory.style.display !== 'flex' && final.style.display !== 'flex') {
+                    victory.style.display = 'flex';
+                    document.getElementById('win-names-tv').innerText = d.winner === 'A' ? `${d.pA1} & ${d.pA2}` : `${d.pB1} & ${d.pB2}`;
+                    setTimeout(() => {
+                        victory.style.display = 'none'; final.style.display = 'flex';
+                        let html = `
+                            <div class="final-row" style="grid-template-columns: ${gridTpl}">
+                                <div class="final-names">${d.pA1} / ${d.pA2}</div>
+                                ${Array.from({length: maxPossible}, (_, i) => i + 1).map(i => {
+                                    const vA = d['s'+i+'A'], vB = d['s'+i+'B'];
+                                    return `<div class="final-set-box">${formatScoreHTML(vA, (parseInt(vA)>parseInt(vB)), d['tb'+i+'A'])}</div>`;
+                                }).join('')}
+                                <div></div>
+                            </div>
+                            <div class="final-row" style="border:none; grid-template-columns: ${gridTpl}">
+                                <div class="final-names">${d.pB1} / ${d.pB2}</div>
+                                ${Array.from({length: maxPossible}, (_, i) => i + 1).map(i => {
+                                    const vA = d['s'+i+'A'], vB = d['s'+i+'B'];
+                                    return `<div class="final-set-box">${formatScoreHTML(vB, (parseInt(vB)>parseInt(vA)), d['tb'+i+'B'])}</div>`;
+                                }).join('')}
+                                <div></div>
+                            </div>`;
+                        document.getElementById('final-table-rows').innerHTML = html;
+                    }, 4000);
+                }
                 return;
             }
 
-            main.style.visibility = 'visible';
+            main.style.visibility = 'visible'; victory.style.display = 'none'; final.style.display = 'none';
             document.getElementById('nA1').innerText = d.pA1; document.getElementById('nA2').innerText = d.pA2;
             document.getElementById('nB1').innerText = d.pB1; document.getElementById('nB2').innerText = d.pB2;
 
-            const lbls = ["0", "15", "30", "40", "AD"];
+            const labels = ["0", "15", "30", "40", "AD"];
             const isTB = (d.gamesA === 6 && d.gamesB === 6);
-            document.getElementById('sA').innerText = isTB ? d.scoreA : (lbls[d.scoreA] || "0");
-            document.getElementById('sB').innerText = isTB ? d.scoreB : (lbls[d.scoreB] || "0");
+            document.getElementById('sA').innerText = isTB ? d.scoreA : (labels[d.scoreA] || "0");
+            document.getElementById('sB').innerText = isTB ? d.scoreB : (labels[d.scoreB] || "0");
 
             const curSet = (d.setsA || 0) + (d.setsB || 0) + 1;
             for(let i=1; i<=5; i++) {
                 let vA = d['s'+i+'A'], vB = d['s'+i+'B'], winA = false, winB = false;
-                if (vA !== undefined && vA !== "" && vB !== undefined && vB !== "") {
+                if (vA !== undefined && vB !== undefined && vA !== "") {
                     if (parseInt(vA) > parseInt(vB)) winA = true; else winB = true;
                 } else if (i === curSet) { vA = d.gamesA; vB = d.gamesB; }
                 document.getElementById(`st${i}A`).innerHTML = formatScoreHTML(vA, winA, d['tb'+i+'A']);
                 document.getElementById(`st${i}B`).innerHTML = formatScoreHTML(vB, winB, d['tb'+i+'B']);
             }
 
+            // BADGES
+            badge.style.display = "none";
+            const sA = d.scoreA || 0, sB = d.scoreB || 0, gA = d.gamesA || 0, gB = d.gamesB || 0;
+            let potA = (!isTB && ((sA === 3 && sB < 3) || sA === 4)) || (isTB && sA >= 6 && sA > sB);
+            let potB = (!isTB && ((sB === 3 && sA < 3) || sB === 4)) || (isTB && sB >= 6 && sB > sA);
+            let winS_A = (isTB) || (gA === 5 && gB <= 4) || (gA === 6 && gB === 5);
+            let winS_B = (isTB) || (gB === 5 && gA <= 4) || (gB === 6 && gA === 5);
+            if (potA) {
+                if (d.setsA === d.maxSets - 1 && winS_A) badge.innerText = "BALLE DE MATCH";
+                else if (winS_A) badge.innerText = "BALLE DE SET";
+                else if (d.serverTeam === 'B') badge.innerText = "BALLE DE BREAK";
+                else badge.innerText = "BALLE DE JEU";
+                badge.style.display = "block";
+            } else if (potB) {
+                if (d.setsB === d.maxSets - 1 && winS_B) badge.innerText = "BALLE DE MATCH";
+                else if (winS_B) badge.innerText = "BALLE DE SET";
+                else if (d.serverTeam === 'A') badge.innerText = "BALLE DE BREAK";
+                else badge.innerText = "BALLE DE JEU";
+                badge.style.display = "block";
+            }
+
             ['bA1', 'bA2', 'bB1', 'bB2'].forEach(id => document.getElementById(id).style.display = 'none');
             const ball = 'b' + d.serverTeam + (d.serverNum || 1);
             if(document.getElementById(ball)) document.getElementById(ball).style.display = 'inline-block';
-        }
-
-        function formatScoreHTML(val, isWinner, tbVal) {
-            if (val === undefined || val === null || val === "") return "";
-            let res = `<span class="${isWinner ? 'set-winner' : ''}">${val}</span>`;
-            if (tbVal !== undefined && tbVal !== "") { res += `<span class="tb-score">${tbVal}</span>`; }
-            return res;
         }
     </script>
 </body>
