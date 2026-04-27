@@ -2,18 +2,11 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>ScoreTrak SuperAdmin - Professional Monitor</title>
+    <title>ScoreTrak SuperAdmin - Sets & Games Monitor</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Roboto:wght@400;700;900&display=swap');
         
-        :root { 
-            --padel-yellow: #ccff00; 
-            --padel-blue: #00d2ff; 
-            --bg-dark: #000; 
-            --card-bg: #0d0d0d; 
-            --border: #222; 
-        }
-        
+        :root { --padel-yellow: #ccff00; --padel-blue: #00d2ff; --bg-dark: #000; --card-bg: #0d0d0d; --border: #222; }
         body { background: var(--bg-dark); color: white; font-family: 'Roboto', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
         
         /* SIDEBAR */
@@ -44,18 +37,19 @@
         .club-tag { font-size: 10px; color: var(--padel-blue); font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
         .status-label { font-size: 9px; font-weight: 900; color: #555; text-transform: uppercase; border: 1px solid #333; padding: 2px 6px; border-radius: 4px; }
 
-        /* SCORE DISPLAY */
-        .score-container { display: flex; flex-direction: column; gap: 10px; }
-        .team-row { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.02); padding: 10px 15px; border-radius: 12px; height: 50px; }
+        /* SCORE DISPLAY (GAMES & SETS) */
+        .team-row { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.02); padding: 12px 18px; border-radius: 12px; height: 60px; margin-bottom: 8px; }
         .player-info { flex: 1; }
-        .player-names { font-size: 13px; font-weight: 900; text-transform: uppercase; color: #fff; }
-        .set-history { display: flex; gap: 5px; margin-top: 4px; }
-        .set-pill { background: var(--padel-blue); color: #000; font-size: 10px; font-weight: 900; padding: 1px 6px; border-radius: 40px; }
+        .player-names { font-size: 13px; font-weight: 900; text-transform: uppercase; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        .current-point { font-family: 'Orbitron'; font-size: 24px; color: var(--padel-yellow); width: 50px; text-align: right; }
+        .sets-won-label { font-size: 9px; color: #555; font-weight: 900; margin-bottom: 2px; }
+        .score-box { display: flex; align-items: center; gap: 10px; }
+        .past-sets { display: flex; gap: 4px; }
+        .set-pill { background: #1a1a1a; color: #888; font-size: 10px; font-weight: 900; padding: 2px 6px; border-radius: 4px; border: 1px solid #333; }
+        .game-count { font-family: 'Orbitron'; font-size: 32px; color: var(--padel-yellow); width: 40px; text-align: right; line-height: 1; }
 
         /* ACTIONS */
-        .btn-reset { background: #1a0000; color: #ff4444; border: 1px solid #300; width: 100%; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 10px; margin-top: 15px; text-transform: uppercase; }
+        .btn-reset { background: #1a0000; color: #ff4444; border: 1px solid #300; width: 100%; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 10px; margin-top: 10px; text-transform: uppercase; }
         .btn-reset:hover { background: #ff4444; color: #000; }
 
         /* CONFIG */
@@ -64,7 +58,7 @@
         .btn-copy { background: var(--padel-blue); color: #000; padding: 8px 15px; font-size: 11px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
         .primary-btn { background: var(--padel-yellow); color: #000; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
-        /* LOGIN */
+        /* AUTH */
         #login-overlay { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; justify-content: center; align-items: center; }
         .login-box { background: #0a0a0a; padding: 50px; border-radius: 30px; border: 1px solid var(--padel-yellow); text-align: center; width: 350px; }
     </style>
@@ -76,7 +70,7 @@
             <div class="logo">ScoreTrak Admin</div>
             <input type="text" id="adm-u" placeholder="Identifiant" style="width:100%; padding:12px; margin-bottom:10px; border-radius:8px; border:1px solid #333; background:#000; color:#fff;">
             <input type="password" id="adm-p" placeholder="Mot de passe" style="width:100%; padding:12px; margin-bottom:20px; border-radius:8px; border:1px solid #333; background:#000; color:#fff;">
-            <button onclick="login()" class="primary-btn" style="width:100%">CONNEXION</button>
+            <button onclick="login()" class="primary-btn" style="width:100%">DÉVERROUILLER</button>
         </div>
     </div>
 
@@ -84,27 +78,23 @@
         <div class="logo">ScoreTrak</div>
         <div class="nav-item active" id="nav-dash" onclick="showView('dash')">📊 MONITORING LIVE</div>
         <div class="nav-item" id="nav-conf" onclick="showView('conf')">⚙️ CONFIG CLUBS</div>
-        <div style="margin-top:auto; font-size:10px; color:#333;">V5.0 - PRO EDITION</div>
+        <div style="margin-top:auto; font-size:10px; color:#333;">V5.1 - GAMES & SETS ONLY</div>
     </div>
 
     <div id="main">
         <div id="view-dash" class="view active">
-            <h1>Surveillance <span>Temps Réel</span></h1>
-            
+            <h1>Surveillance <span>Live</span></h1>
             <div class="filter-bar">
-                <select id="filter-club" class="select-club" onchange="renderDashboard()">
-                    <option value="all">TOUS LES CLUBS</option>
-                </select>
-                <input type="text" id="search-court" class="search-input" placeholder="Rechercher une piste par nom..." onkeyup="renderDashboard()">
+                <select id="filter-club" class="select-club" onchange="renderDashboard()"><option value="all">TOUS LES CLUBS</option></select>
+                <input type="text" id="search-court" class="search-input" placeholder="Chercher un terrain..." onkeyup="renderDashboard()">
             </div>
-
             <div class="monitor-grid" id="monitor-list"></div>
         </div>
 
         <div id="view-conf" class="view">
             <h1>Gestion <span>Structure</span></h1>
             <div class="club-card" style="border-color: var(--padel-yellow);">
-                <h3 style="margin-top:0">Ajouter un Club</h3>
+                <h3 style="margin-top:0">Nouveau Club</h3>
                 <div style="display:flex; gap:10px;">
                     <input type="text" id="new-club-name" placeholder="Nom du Club" style="flex:1; padding:12px; border-radius:8px; background:#000; color:#fff; border:1px solid #333;">
                     <button onclick="createClub()" class="primary-btn">CRÉER</button>
@@ -126,9 +116,8 @@
 
         window.login = () => {
             if(document.getElementById('adm-u').value === "master" && document.getElementById('adm-p').value === "score2026") {
-                document.getElementById('login-overlay').style.display = 'none';
-                sync();
-            } else alert("Erreur identifiants");
+                document.getElementById('login-overlay').style.display = 'none'; sync();
+            } else alert("Accès refusé");
         };
 
         window.showView = (v) => {
@@ -141,15 +130,12 @@
         function sync() {
             onValue(ref(db, 'clubs'), snap => {
                 globalData = snap.val() || {};
-                updateFilters();
-                renderDashboard();
-                renderManagement();
+                updateFilters(); renderDashboard(); renderManagement();
             });
         }
 
         function updateFilters() {
-            const sel = document.getElementById('filter-club');
-            const cur = sel.value;
+            const sel = document.getElementById('filter-club'); const cur = sel.value;
             sel.innerHTML = '<option value="all">TOUS LES CLUBS</option>';
             Object.keys(globalData).forEach(id => { sel.innerHTML += `<option value="${id}">${globalData[id].name.toUpperCase()}</option>`; });
             sel.value = cur;
@@ -163,8 +149,7 @@
 
             Object.keys(globalData).forEach(clubId => {
                 if (clubFilter !== 'all' && clubFilter !== clubId) return;
-                const club = globalData[clubId];
-                if (!club.courts) return;
+                const club = globalData[clubId]; if (!club.courts) return;
 
                 Object.keys(club.courts).forEach(courtId => {
                     const c = club.courts[courtId];
@@ -173,55 +158,50 @@
                     const isFini = c.winner != null;
                     const isLive = c.status === 'active';
                     const isSetup = c.status === 'setup';
-                    
-                    // Noms et Sets visibles seulement si actif/fini
-                    const showNames = isLive || isFini;
-                    
+                    const showMatch = isLive || isFini;
+
+                    // Historique des Sets (Pills)
                     let setsA = [], setsB = [];
-                    if(showNames) {
-                        for(let i=1; i<=3; i++) {
-                            if(c['s'+i+'A'] !== undefined) {
-                                setsA.push(c['s'+i+'A']); setsB.push(c['s'+i+'B']);
-                            }
+                    for(let i=1; i<=3; i++) {
+                        if(c['s'+i+'A'] !== undefined && c['s'+i+'A'] !== "") {
+                            setsA.push(c['s'+i+'A']); setsB.push(c['s'+i+'B']);
                         }
                     }
 
-                    // Badge Statut
-                    let statusTxt = "VEILLE";
-                    let badgeStyle = "";
-                    if(isFini) { statusTxt = "TERMINÉ"; badgeStyle = "color:#ff4444; border-color:#ff4444"; }
-                    else if(isLive) { statusTxt = "EN COURS"; badgeStyle = "color:var(--padel-yellow); border-color:var(--padel-yellow)"; }
-                    else if(isSetup) { statusTxt = "CONFIGURATION EN COURS"; badgeStyle = "color:var(--padel-blue); border-color:var(--padel-blue)"; }
-
-                    const labels = ["0", "15", "30", "40", "AD"];
-                    const ptA = (c.gamesA === 6 && c.gamesB === 6) ? c.scoreA : (labels[c.scoreA] || "0");
-                    const ptB = (c.gamesA === 6 && c.gamesB === 6) ? c.scoreB : (labels[c.scoreB] || "0");
+                    // Statut dynamique
+                    let stTxt = "VEILLE"; let stStyle = "";
+                    if(isFini) { stTxt = "TERMINÉ"; stStyle = "color:#ff4444; border-color:#ff4444"; }
+                    else if(isSetup) { stTxt = "CONFIGURATION EN COURS"; stStyle = "color:var(--padel-blue); border-color:var(--padel-blue)"; }
+                    else if(isLive) { stTxt = "EN COURS"; stStyle = "color:var(--padel-yellow); border-color:var(--padel-yellow)"; }
 
                     const card = document.createElement('div');
-                    card.className = `monitor-card ${isLive?'live':''} ${isSetup?'setup':''} ${isFini?'finished':''}`;
+                    card.className = `monitor-card ${isLive?'live':''} ${isFini?'finished':''}`;
                     card.innerHTML = `
                         <div class="card-header">
                             <div>
                                 <div class="club-tag">${club.name}</div>
                                 <div style="font-weight:900; font-size:18px; margin-top:5px;">${c.name}</div>
                             </div>
-                            <div class="status-label" style="${badgeStyle}">${statusTxt}</div>
+                            <div class="status-label" style="${stStyle}">${stTxt}</div>
                         </div>
 
-                        <div class="score-container" style="opacity: ${showNames ? 1 : 0}">
+                        <div style="opacity: ${showMatch ? 1 : 0}">
+                            <div class="sets-won-label">SCORE : ${c.setsA || 0} SET(S) À ${c.setsB || 0}</div>
+                            
                             <div class="team-row">
                                 <div class="player-info">
                                     <div class="player-names">${c.pA1} / ${c.pA2}</div>
-                                    <div class="set-history">${setsA.map(s => `<span class="set-pill">${s}</span>`).join('')}</div>
+                                    <div class="past-sets">${setsA.map(s => `<span class="set-pill">${s}</span>`).join('')}</div>
                                 </div>
-                                <div class="current-point">${isFini ? c.setsA : ptA}</div>
+                                <div class="game-count">${isFini ? c.setsA : (c.gamesA || 0)}</div>
                             </div>
+
                             <div class="team-row">
                                 <div class="player-info">
                                     <div class="player-names">${c.pB1} / ${c.pB2}</div>
-                                    <div class="set-history">${setsB.map(s => `<span class="set-pill">${s}</span>`).join('')}</div>
+                                    <div class="past-sets">${setsB.map(s => `<span class="set-pill">${s}</span>`).join('')}</div>
                                 </div>
-                                <div class="current-point">${isFini ? c.setsB : ptB}</div>
+                                <div class="game-count">${isFini ? c.setsB : (c.gamesB || 0)}</div>
                             </div>
                         </div>
 
@@ -235,51 +215,28 @@
         };
 
         function renderManagement() {
-            const container = document.getElementById('club-mgmt-list');
-            container.innerHTML = "";
+            const container = document.getElementById('club-mgmt-list'); container.innerHTML = "";
             Object.keys(globalData).forEach(cid => {
-                const club = globalData[cid];
-                let courts = "";
+                const club = globalData[cid]; let courts = "";
                 if(club.courts) {
                     Object.keys(club.courts).forEach(tid => {
                         const url = `${TV_BASE}?clubId=${cid}&courtId=${tid}`;
-                        courts += `
-                            <div class="court-row">
-                                <span style="font-weight:bold">${club.courts[tid].name}</span>
-                                <div>
-                                    <button class="btn-copy" onclick="copy('${url}')">🔗 LIEN TV</button>
-                                    <button onclick="deleteCourt('${cid}','${tid}')" style="background:none; color:#555; border:none; cursor:pointer; font-size:18px; margin-left:10px">×</button>
-                                </div>
-                            </div>`;
+                        courts += `<div class="court-row"><span style="font-weight:bold">${club.courts[tid].name}</span><div><button class="btn-copy" onclick="copy('${url}')">🔗 LIEN TV</button><button onclick="deleteCourt('${cid}','${tid}')" style="background:none; color:#555; border:none; cursor:pointer; font-size:18px; margin-left:10px">×</button></div></div>`;
                     });
                 }
-                container.innerHTML += `
-                    <div class="club-card">
-                        <div style="display:flex; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #222; padding-bottom:10px">
-                            <h2 style="margin:0; color:var(--padel-blue); font-family:Orbitron; font-size:18px;">${club.name}</h2>
-                            <button onclick="deleteClub('${cid}')" style="background:none; border:none; color:#444; font-size:9px; cursor:pointer">SUPPRIMER CLUB</button>
-                        </div>
-                        ${courts}
-                        <div style="display:flex; gap:10px; margin-top:15px">
-                            <input type="text" id="in-${cid}" placeholder="Nouveau terrain..." style="flex:1; background:#000; border:1px solid #333; color:white; padding:10px; border-radius:8px;">
-                            <button onclick="addCourt('${cid}')" class="primary-btn" style="padding:10px 20px">+</button>
-                        </div>
-                    </div>`;
+                container.innerHTML += `<div class="club-card"><div style="display:flex; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #222; padding-bottom:10px"><h2 style="margin:0; color:var(--padel-blue); font-family:Orbitron; font-size:18px;">${club.name}</h2><button onclick="deleteClub('${cid}')" style="background:none; border:none; color:#444; font-size:9px; cursor:pointer">SUPPRIMER CLUB</button></div>${courts}<div style="display:flex; gap:10px; margin-top:15px"><input type="text" id="in-${cid}" placeholder="Nouveau terrain..." style="flex:1; background:#000; border:1px solid #333; color:white; padding:10px; border-radius:8px;"><button onclick="addCourt('${cid}')" class="primary-btn" style="padding:10px 20px">+</button></div></div>`;
             });
         }
 
         window.createClub = () => { const n = document.getElementById('new-club-name').value; if(n) { push(ref(db, 'clubs'), {name:n}); document.getElementById('new-club-name').value=""; } };
         window.addCourt = (cid) => {
             const n = document.getElementById('in-'+cid).value;
-            if(n) push(ref(db, `clubs/${cid}/courts`), { 
-                name:n, status:'idle', pA1:'?', pA2:'?', pB1:'?', pB2:'?', 
-                scoreA:0, scoreB:0, gamesA:0, gamesB:0, setsA:0, setsB:0, serverTeam:'A' 
-            });
+            if(n) push(ref(db, `clubs/${cid}/courts`), { name:n, status:'idle', pA1:'?', pA2:'?', pB1:'?', pB2:'?', scoreA:0, scoreB:0, gamesA:0, gamesB:0, setsA:0, setsB:0, serverTeam:'A' });
         };
-        window.resetCourt = (cid, tid) => { if(confirm("Voulez-vous réinitialiser ce terrain ?")) update(ref(db, `clubs/${cid}/courts/${tid}`), {status:'idle', winner:null, scoreA:0, scoreB:0, gamesA:0, gamesB:0, setsA:0, setsB:0, s1A:null, s1B:null, s2A:null, s2B:null, s3A:null, s3B:null}); };
+        window.resetCourt = (cid, tid) => { if(confirm("Réinitialiser ce terrain ?")) update(ref(db, `clubs/${cid}/courts/${tid}`), {status:'idle', winner:null, scoreA:0, scoreB:0, gamesA:0, gamesB:0, setsA:0, setsB:0, s1A:null, s1B:null, s2A:null, s2B:null, s3A:null, s3B:null}); };
         window.deleteCourt = (cid, tid) => { if(confirm("Supprimer ce terrain ?")) remove(ref(db, `clubs/${cid}/courts/${tid}`)); };
         window.deleteClub = (cid) => { if(confirm("Supprimer tout le club ?")) remove(ref(db, `clubs/${cid}`)); };
-        window.copy = (t) => { navigator.clipboard.writeText(t); alert("Lien TV Copié !"); };
+        window.copy = (t) => { navigator.clipboard.writeText(t); alert("URL Copiée !"); };
     </script>
 </body>
 </html>
