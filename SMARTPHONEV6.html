@@ -1,73 +1,61 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ScoreTrak Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <style>
-        body { background:#000; color:#fff; font-family:sans-serif; text-align:center; margin:0; padding:10px; }
-        .btn-point { width:100%; padding:40px 0; border:none; border-radius:20px; color:#fff; font-size:24px; font-weight:bold; margin:10px 0; text-transform:uppercase; }
-        .vert { background:#2E7D32; } .bleu { background:#1565C0; }
+        body { background:#000; color:#fff; font-family:sans-serif; text-align:center; padding:10px; }
+        .btn { width:100%; padding:40px 0; border:none; border-radius:20px; color:#fff; font-size:24px; font-weight:bold; margin:10px 0; }
+        .v { background:#2E7D32; } .b { background:#1565C0; }
         .serving { border:5px solid #ccff00; }
         input { width:90%; padding:15px; margin:5px 0; border-radius:10px; border:none; background:#222; color:#fff; }
     </style>
 </head>
 <body>
-    <div id="setup-view">
-        <h2 style="color:#ccff00">CONFIGURATION</h2>
+    <div id="setup">
+        <h2 style="color:#ccff00">CONFIG</h2>
         <input type="text" id="pA1" placeholder="Vert 1"><input type="text" id="pA2" placeholder="Vert 2">
         <input type="text" id="pB1" placeholder="Bleu 1"><input type="text" id="pB2" placeholder="Bleu 2">
-        <button onclick="start()" style="background:#ccff00; padding:20px; width:90%; border-radius:15px; font-weight:bold; margin-top:20px;">LANCER MATCH</button>
+        <button onclick="start()" style="background:#ccff00; padding:20px; width:90%; border-radius:15px; font-weight:bold; margin-top:20px; border:none;">LANCER</button>
     </div>
-    <div id="score-view" style="display:none">
-        <button id="btnA" class="btn-point vert" onclick="add('scoreA')"></button>
-        <button id="btnB" class="btn-point bleu" onclick="add('scoreB')"></button>
-        <button onclick="reset()" style="background:#400; color:#fff; border:none; padding:15px; border-radius:10px; margin-top:30px">RÉINITIALISER</button>
+    <div id="score" style="display:none">
+        <button id="btnA" class="btn v" onclick="add('scoreA')"></button>
+        <button id="btnB" class="btn b" onclick="add('scoreB')"></button>
+        <button onclick="reset()" style="background:#400; color:#fff; border:none; padding:15px; border-radius:10px; margin-top:30px">RESET</button>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, get, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-        const config = { apiKey: "AIzaSyCjlHL7GEXFvnrNzZAIEZyl-WCqUI3txiM", authDomain: "scoretrak-123.firebaseapp.com", databaseURL: "https://scoretrak-123-default-rtdb.europe-west1.firebasedatabase.app", projectId: "scoretrak-123" };
-        const app = initializeApp(config); const db = getDatabase(app);
-        const params = new URLSearchParams(window.location.search);
-        const clubId = params.get('clubId'), courtId = params.get('courtId');
-        const mRef = ref(db, `clubs/${clubId}/courts/${courtId}`);
+        const fb = { apiKey: "AIzaSyCjlHL7GEXFvnrNzZAIEZyl-WCqUI3txiM", authDomain: "scoretrak-123.firebaseapp.com", databaseURL: "https://scoretrak-123-default-rtdb.europe-west1.firebasedatabase.app", projectId: "scoretrak-123" };
+        const app = initializeApp(fb); const db = getDatabase(app);
+        const p = new URLSearchParams(window.location.search);
+        const cid = p.get('clubId'), tid = p.get('courtId');
+        const mRef = ref(db, `clubs/${cid}/courts/${tid}`);
 
         onValue(mRef, snap => {
             const d = snap.val(); if(!d) return;
             if(d.status==='active'){
-                document.getElementById('setup-view').style.display='none'; document.getElementById('score-view').style.display='block';
+                document.getElementById('setup').style.display='none'; document.getElementById('score').style.display='block';
                 document.getElementById('btnA').innerText = `${d.pA1} / ${d.pA2}`; document.getElementById('btnB').innerText = `${d.pB1} / ${d.pB2}`;
-                document.getElementById('btnA').className = `btn-point vert ${d.serverTeam==='A'?'serving':''}`;
-                document.getElementById('btnB').className = `btn-point bleu ${d.serverTeam==='B'?'serving':''}`;
-            } else { document.getElementById('setup-view').style.display='block'; document.getElementById('score-view').style.display='none'; }
+                document.getElementById('btnA').className = `btn v ${d.serverTeam==='A'?'serving':''}`;
+                document.getElementById('btnB').className = `btn b ${d.serverTeam==='B'?'serving':''}`;
+            } else { document.getElementById('setup').style.display='block'; document.getElementById('score').style.display='none'; }
         });
 
-        window.start = () => {
-            update(mRef, { 
-                status:'active', pA1:document.getElementById('pA1').value||"VERT 1", pA2:document.getElementById('pA2').value||"VERT 2",
-                pB1:document.getElementById('pB1').value||"BLEU 1", pB2:document.getElementById('pB2').value||"BLEU 2",
-                scoreA:0, scoreB:0, gamesA:0, gamesB:0, setsA:0, setsB:0, serverTeam:'A', maxSets:2
-            });
-        };
-
+        window.start = () => { update(mRef, { status:'active', pA1:document.getElementById('pA1').value||"V1", pA2:document.getElementById('pA2').value||"V2", pB1:document.getElementById('pB1').value||"B1", pB2:document.getElementById('pB2').value||"B2", scoreA:0, scoreB:0, gamesA:0, gamesB:0, setsA:0, setsB:0, serverTeam:'A', maxSets:2 }); };
         window.add = async (t) => {
             let snap = await get(mRef); let d = snap.val(); if(!d) return;
             const other = t==='scoreA'?'scoreB':'scoreA';
-            if(d.scoreA===3 && d.scoreB===3) { winGame(d, t); } // Point décisif simplifié
-            else if(d.scoreA===3 || d.scoreB===3) { if(d[t]===3) winGame(d, t); else d[t]++; }
-            else d[t]++;
+            if(d.gamesA==6 && d.gamesB==6) { d[t]++; if(d[t]>=7 && d[t]-d[other]>=2) winG(d,t); }
+            else { if(d[t]===3) winG(d,t); else d[t]++; }
             set(mRef, d);
         };
-
-        function winGame(d, t) {
-            d.scoreA=0; d.scoreB=0; d[t==='scoreA'?'gamesA':'gamesB']++;
-            d.serverTeam = d.serverTeam==='A'?'B':'A';
-            if(d.gamesA>=6 || d.gamesB>=6) {
+        function winG(d, t) {
+            d.scoreA=0; d.scoreB=0; d[t==='scoreA'?'gamesA':'gamesB']++; d.serverTeam = d.serverTeam==='A'?'B':'A';
+            if((d.gamesA>=6 || d.gamesB>=6) && Math.abs(d.gamesA-d.gamesB)>=2 || d.gamesA==7 || d.gamesB==7) {
                 const i = d.setsA+d.setsB+1; d['s'+i+'A']=d.gamesA; d['s'+i+'B']=d.gamesB;
                 d[t==='scoreA'?'setsA':'setsB']++; d.gamesA=0; d.gamesB=0;
-                if(d.setsA===2 || d.setsB===2) d.winner = t==='scoreA'?'A':'B';
+                if(d.setsA==2 || d.setsB==2) d.winner = t==='scoreA'?'A':'B';
             }
         }
         window.reset = () => { if(confirm("RESET ?")) update(mRef, {status:'idle'}); };
