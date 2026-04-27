@@ -3,7 +3,8 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <style>
-        body { background:#000; color:#fff; font-family:sans-serif; text-align:center; padding:10px; }
+        body { background:#000; color:#fff; font-family:sans-serif; text-align:center; padding:10px; margin:0;}
+        #court-header { background: #ccff00; color: #000; padding: 10px; font-weight: bold; font-size: 14px; text-transform: uppercase; margin-bottom: 20px;}
         .btn { width:100%; padding:40px 0; border:none; border-radius:20px; color:#fff; font-size:24px; font-weight:bold; margin:10px 0; }
         .v { background:#2E7D32; } .b { background:#1565C0; }
         .serving { border:5px solid #ccff00; }
@@ -11,29 +12,41 @@
     </style>
 </head>
 <body>
+    <div id="court-header">Chargement...</div>
+
     <div id="setup">
-        <h2 style="color:#ccff00">CONFIG</h2>
         <input type="text" id="pA1" placeholder="Vert 1"><input type="text" id="pA2" placeholder="Vert 2">
         <input type="text" id="pB1" placeholder="Bleu 1"><input type="text" id="pB2" placeholder="Bleu 2">
-        <button onclick="start()" style="background:#ccff00; padding:20px; width:90%; border-radius:15px; font-weight:bold; margin-top:20px; border:none;">LANCER</button>
+        <button onclick="start()" style="background:#ccff00; padding:20px; width:90%; border-radius:15px; font-weight:bold; margin-top:20px; border:none;">LANCER MATCH</button>
     </div>
+
     <div id="score" style="display:none">
         <button id="btnA" class="btn v" onclick="add('scoreA')"></button>
         <button id="btnB" class="btn b" onclick="add('scoreB')"></button>
-        <button onclick="reset()" style="background:#400; color:#fff; border:none; padding:15px; border-radius:10px; margin-top:30px">RESET</button>
+        <button onclick="reset()" style="background:#400; color:#fff; border:none; padding:15px; border-radius:10px; margin-top:30px">RÉINITIALISER LE TERRAIN</button>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, get, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-        const fb = { apiKey: "AIzaSyCjlHL7GEXFvnrNzZAIEZyl-WCqUI3txiM", authDomain: "scoretrak-123.firebaseapp.com", databaseURL: "https://scoretrak-123-default-rtdb.europe-west1.firebasedatabase.app", projectId: "scoretrak-123" };
-        const app = initializeApp(fb); const db = getDatabase(app);
-        const p = new URLSearchParams(window.location.search);
-        const cid = p.get('clubId'), tid = p.get('courtId');
+        
+        const fbConfig = { apiKey: "AIzaSyCjlHL7GEXFvnrNzZAIEZyl-WCqUI3txiM", authDomain: "scoretrak-123.firebaseapp.com", databaseURL: "https://scoretrak-123-default-rtdb.europe-west1.firebasedatabase.app", projectId: "scoretrak-123" };
+        const app = initializeApp(fbConfig); const db = getDatabase(app);
+
+        // RÉCUPÉRATION DES PARAMÈTRES DANS L'URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const cid = urlParams.get('clubId');
+        const tid = urlParams.get('courtId');
+        
+        if(!cid || !tid) {
+            document.body.innerHTML = "<h2 style='color:red'>ERREUR : IDs MANQUANTS.<br>Scannez le QR Code de la TV.</h2>";
+        }
+
         const mRef = ref(db, `clubs/${cid}/courts/${tid}`);
 
         onValue(mRef, snap => {
             const d = snap.val(); if(!d) return;
+            document.getElementById('court-header').innerText = d.name || "Terrain";
             if(d.status==='active'){
                 document.getElementById('setup').style.display='none'; document.getElementById('score').style.display='block';
                 document.getElementById('btnA').innerText = `${d.pA1} / ${d.pA2}`; document.getElementById('btnB').innerText = `${d.pB1} / ${d.pB2}`;
@@ -43,6 +56,7 @@
         });
 
         window.start = () => { update(mRef, { status:'active', pA1:document.getElementById('pA1').value||"V1", pA2:document.getElementById('pA2').value||"V2", pB1:document.getElementById('pB1').value||"B1", pB2:document.getElementById('pB2').value||"B2", scoreA:0, scoreB:0, gamesA:0, gamesB:0, setsA:0, setsB:0, serverTeam:'A', maxSets:2 }); };
+        
         window.add = async (t) => {
             let snap = await get(mRef); let d = snap.val(); if(!d) return;
             const other = t==='scoreA'?'scoreB':'scoreA';
@@ -50,15 +64,16 @@
             else { if(d[t]===3) winG(d,t); else d[t]++; }
             set(mRef, d);
         };
+
         function winG(d, t) {
             d.scoreA=0; d.scoreB=0; d[t==='scoreA'?'gamesA':'gamesB']++; d.serverTeam = d.serverTeam==='A'?'B':'A';
             if((d.gamesA>=6 || d.gamesB>=6) && Math.abs(d.gamesA-d.gamesB)>=2 || d.gamesA==7 || d.gamesB==7) {
-                const i = d.setsA+d.setsB+1; d['s'+i+'A']=d.gamesA; d['s'+i+'B']=d.gamesB;
+                const i = (d.setsA||0)+(d.setsB||0)+1; d['s'+i+'A']=d.gamesA; d['s'+i+'B']=d.gamesB;
                 d[t==='scoreA'?'setsA':'setsB']++; d.gamesA=0; d.gamesB=0;
-                if(d.setsA==2 || d.setsB==2) d.winner = t==='scoreA'?'A':'B';
+                if(d.setsA==2 || d.setsB==2) { d.winner = t==='scoreA'?'A':'B'; d.status = 'idle'; }
             }
         }
-        window.reset = () => { if(confirm("RESET ?")) update(mRef, {status:'idle'}); };
+        window.reset = () => { if(confirm("RÉINITIALISER CE TERRAIN ?")) update(mRef, {status:'idle'}); };
     </script>
 </body>
 </html>
