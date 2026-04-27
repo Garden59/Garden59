@@ -2,81 +2,60 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>ScoreTrak TV Universelle</title>
+    <title>ScoreTrak TV</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Roboto:wght@400;700;900&display=swap');
-        body { background: #000; color: white; font-family: 'Roboto', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Roboto:wght@900&display=swap');
+        body { background: #000; color: #fff; font-family: Roboto; margin: 0; overflow: hidden; }
         :root { --padel-yellow: #ccff00; --padel-blue: #00d2ff; }
-        
-        #idle-screen { position: fixed; inset: 0; display: flex; z-index: 500; }
-        .ad-space { flex: 1.8; border-right: 2px solid #222; display: flex; justify-content: center; align-items: center; }
-        #ad-container { width: 90%; height: 70%; border-radius: 40px; border: 3px solid #222; position: relative; overflow: hidden; background: #111; transition: 0.8s; }
-        .ad-image { position: absolute; inset: 0; object-fit: cover; opacity: 0.7; }
-        .ad-text { position: absolute; bottom: 5vh; left: 4vw; font-size: 5vw; color: var(--padel-yellow); font-weight: 900; text-shadow: 0 4px 20px #000; z-index: 10; font-style: italic; }
-        .fade-out { opacity: 0 !important; }
-
-        .qr-space { flex: 1.2; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        #idle { display: flex; height: 100vh; }
+        .ad-box { flex: 1.8; border-right: 2px solid #222; display: flex; justify-content: center; align-items: center; }
+        #ad-wrap { width: 90%; height: 70%; border-radius: 40px; border: 3px solid #333; position: relative; overflow: hidden; background: #111; }
+        .ad-txt { position: absolute; bottom: 40px; left: 40px; font-size: 5vw; color: var(--padel-yellow); font-style: italic; z-index: 10; text-shadow: 0 4px 20px #000; }
+        .qr-box { flex: 1.2; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .qr-frame { background: white; padding: 20px; border-radius: 20px; }
-        .qr-frame img { width: 18vw; }
-
-        #main-ui { display: grid; grid-template-columns: 35% 9% 9% 9% 9% 9% 20%; height: 100vh; visibility: hidden; }
-        .cell { display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #111; border-right: 1px solid #111; font-family: Orbitron; font-size: 5vw; font-weight: 900; }
-        .name-cell { justify-content: flex-start; padding-left: 3vw; font-family: Roboto; font-size: 4vw; }
-        .pts-cell { font-size: 12vw; color: var(--padel-blue); text-shadow: 0 0 20px var(--padel-blue); background: rgba(0,210,255,0.05); }
-        .set-win { color: var(--padel-yellow); text-shadow: 0 0 15px var(--padel-yellow); }
-        .serve-ball { width: 2vw; height: 2vw; background: var(--padel-yellow); border-radius: 50%; margin-left: 15px; display: none; }
+        #match { display: grid; grid-template-columns: 40% 10% 10% 10% 30%; height: 100vh; display: none; }
+        .cell { display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #111; border-right: 1px solid #111; font-family: Orbitron; font-size: 6vw; }
+        .pts { font-size: 13vw; color: var(--padel-blue); background: rgba(0,210,255,0.05); text-shadow: 0 0 30px var(--padel-blue); }
+        .name { justify-content: flex-start; padding-left: 30px; font-family: Roboto; font-size: 4vw; }
+        .ball { width: 2vw; height: 2vw; background: var(--padel-yellow); border-radius: 50%; margin-left: 20px; display: none; box-shadow: 0 0 15px var(--padel-yellow); }
     </style>
 </head>
 <body>
-    <div id="idle-screen"><div class="ad-space"><div id="ad-container"></div></div><div class="qr-space"><div class="qr-frame"><img id="qr-img"></div><h2 style="color:var(--padel-yellow)">SCAN POUR SCORE</h2></div></div>
-
-    <div id="main-ui">
-        </div>
+    <div id="idle"><div class="ad-box"><div id="ad-wrap"></div></div><div class="qr-box"><div class="qr-frame"><img id="qr"></div><h2 style="color:var(--padel-yellow)">SCAN POUR SCORE</h2></div></div>
+    <div id="match"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        const fb = { apiKey: "AIzaSyCjlHL7GEXFvnrNzZAIEZyl-WCqUI3txiM", authDomain: "scoretrak-123.firebaseapp.com", databaseURL: "https://scoretrak-123-default-rtdb.europe-west1.firebasedatabase.app", projectId: "scoretrak-123" };
+        const app = initializeApp(fb); const db = getDatabase(app);
+        const p = new URLSearchParams(window.location.search);
+        const cid = p.get('clubId'), tid = p.get('courtId');
 
-        const config = { apiKey: "AIzaSyCjlHL7GEXFvnrNzZAIEZyl-WCqUI3txiM", authDomain: "scoretrak-123.firebaseapp.com", databaseURL: "https://scoretrak-123-default-rtdb.europe-west1.firebasedatabase.app", projectId: "scoretrak-123" };
-        const app = initializeApp(config); const db = getDatabase(app);
-
-        const params = new URLSearchParams(window.location.search);
-        const clubId = params.get('clubId'), courtId = params.get('courtId');
-
-        if(clubId && courtId) {
-            const adminLink = `https://score-trak.vercel.app/SmartphoneV5.html?clubId=${clubId}&courtId=${courtId}`;
-            document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(adminLink)}`;
-            
-            onValue(ref(db, `clubs/${clubId}/courts/${courtId}`), snap => {
+        if(cid && tid) {
+            const admin = `https://score-trak.vercel.app/SmartphoneV5.html?clubId=${cid}&courtId=${tid}`;
+            document.getElementById('qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(admin)}`;
+            onValue(ref(db, `clubs/${cid}/courts/${tid}`), snap => {
                 const d = snap.val(); if(!d) return;
-                const idle = document.getElementById('idle-screen'), ui = document.getElementById('main-ui');
-                if(d.status === 'idle') { idle.style.display='flex'; ui.style.visibility='hidden'; return; }
-                idle.style.display='none'; ui.style.visibility='visible';
-                
-                const lbls = ["0","15","30","40","AD"];
-                const isTB = d.gamesA===6 && d.gamesB===6;
-                const scoreA = isTB ? d.scoreA : (lbls[d.scoreA]||"0");
-                const scoreB = isTB ? d.scoreB : (lbls[d.scoreB]||"0");
-
-                ui.innerHTML = `
-                    <div class="cell name-cell" style="grid-column: span 1; color:#666">JOUEURS</div><div class="cell">S1</div><div class="cell">S2</div><div class="cell">S3</div><div class="cell">S4</div><div class="cell">S5</div><div class="cell">PTS</div>
-                    <div class="cell name-cell" style="height:40vh"><div>${d.pA1}<br>${d.pA2}</div><div class="serve-ball" style="${d.serverTeam==='A'?'display:block':''}"></div></div>
-                    <div class="cell">${d.s1A||(d.setsA+d.setsB===0?d.gamesA:'')}</div><div class="cell">${d.s2A||(d.setsA+d.setsB===1?d.gamesA:'')}</div><div class="cell">${d.s3A||(d.setsA+d.setsB===2?d.gamesA:'')}</div><div class="cell">${d.s4A||''}</div><div class="cell">${d.s5A||''}</div>
-                    <div class="cell pts-cell">${scoreA}</div>
-                    <div class="cell name-cell" style="height:40vh; border-bottom:none"><div>${d.pB1}<br>${d.pB2}</div><div class="serve-ball" style="${d.serverTeam==='B'?'display:block':''}"></div></div>
-                    <div class="cell" style="border-bottom:none">${d.s1B||(d.setsA+d.setsB===0?d.gamesB:'')}</div><div class="cell" style="border-bottom:none">${d.s2B||(d.setsA+d.setsB===1?d.gamesB:'')}</div><div class="cell" style="border-bottom:none">${d.s3B||(d.setsA+d.setsB===2?d.gamesB:'')}</div><div class="cell" style="border-bottom:none">${d.s4B||''}</div><div class="cell" style="border-bottom:none">${d.s5B||''}</div>
-                    <div class="cell pts-cell" style="border-bottom:none">${scoreB}</div>
+                const idle = document.getElementById('idle'), match = document.getElementById('match');
+                if(d.status === 'idle') { idle.style.display='flex'; match.style.display='none'; return; }
+                idle.style.display='none'; match.style.display='grid';
+                const lbl = ["0","15","30","40","AD"];
+                match.innerHTML = `
+                    <div class="cell name" style="height:50vh"><div>${d.pA1}<br>${d.pA2}</div><div class="ball" style="${d.serverTeam==='A'?'display:block':''}"></div></div>
+                    <div class="cell">${d.s1A||(d.setsA+d.setsB==0?d.gamesA:'')}</div><div class="cell">${d.s2A||(d.setsA+d.setsB==1?d.gamesA:'')}</div><div class="cell">${d.s3A||''}</div>
+                    <div class="cell pts">${d.gamesA==6&&d.gamesB==6?d.scoreA:(lbl[d.scoreA]||"0")}</div>
+                    <div class="cell name" style="height:50vh; border:none"><div>${d.pB1}<br>${d.pB2}</div><div class="ball" style="${d.serverTeam==='B'?'display:block':''}"></div></div>
+                    <div class="cell" style="border:none">${d.s1B||(d.setsA+d.setsB==0?d.gamesB:'')}</div><div class="cell" style="border:none">${d.s2B||(d.setsA+d.setsB==1?d.gamesB:'')}</div><div class="cell" style="border:none">${d.s3B||''}</div>
+                    <div class="cell pts" style="border:none">${d.gamesA==6&&d.gamesB==6?d.scoreB:(lbl[d.scoreB]||"0")}</div>
                 `;
             });
         }
-
-        // PUBS
-        const ads = [{t:"CLUB MED", i:"https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?q=80&w=1200"}, {t:"AUDI E-TRON", i:"https://images.unsplash.com/photo-1606152421802-db97b9c7a11b?q=80&w=1200"}];
-        let cur = 0; function upAd() {
-            const container = document.getElementById('ad-container'); container.classList.add('fade-out');
-            setTimeout(() => { container.innerHTML = `<img src="${ads[cur].i}" class="ad-image"><div class="ad-text">${ads[cur].t}</div>`; container.classList.remove('fade-out'); cur=(cur+1)%ads.length; }, 800);
-        }
-        upAd(); setInterval(upAd, 5000);
+        const ads = [{t:"CLUB MED", i:"https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?q=80&w=1200"},{t:"AUDI E-TRON", i:"https://images.unsplash.com/photo-1606152421802-db97b9c7a11b?q=80&w=1200"}];
+        let cur = 0; setInterval(() => {
+            const w = document.getElementById('ad-wrap'); w.style.opacity = 0;
+            setTimeout(() => { w.innerHTML = `<img src="${ads[cur].i}" style="width:100%;height:100%;object-fit:cover;opacity:0.7"><div class="ad-txt">${ads[cur].t}</div>`; w.style.opacity = 1; cur = (cur+1)%ads.length; }, 800);
+        }, 5000);
     </script>
 </body>
 </html>
